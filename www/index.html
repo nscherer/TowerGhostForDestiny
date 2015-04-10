@@ -73,7 +73,7 @@
 		        <span class="icon-bar"></span>
 		        <span class="icon-bar"></span>
 		      </button>
-		      <a class="navbar-brand" href="#">TGD 1.6.7</a>
+		      <a class="navbar-brand" href="#">TGD 1.7.2</a>
 		    </div>
 		
 		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -88,8 +88,8 @@
 						<li class="divider"></li>						
 						<li><a href="#" data-bind="click: openBungieWindow('Psnid')">PSN Login</a></li>
 						<li><a href="#" data-bind="click: openBungieWindow('Wlid')">Live Login</a></li>
-						<li data-bind="visible: hasXboxAccount, css: activeUser() && activeUser().activeSystem() == 'XBL' ? 'active' : ''"><a href="#" data-bind="click: useXboxAccount">Use Xbox Account</a></li>
-						<li data-bind="visible: hasPsnAccount, css: activeUser() && activeUser().activeSystem() == 'PSN' ? 'active' : ''"><a href="#" data-bind="click: usePlaystationAccount">Use Playstation Account</a></li>
+						<li data-bind="visible: hasBothAccounts(), css: activeUser() && activeUser().activeSystem() == 'XBL' ? 'active' : ''"><a href="#" data-bind="click: useXboxAccount">Use Xbox Account</a></li>
+						<li data-bind="visible: hasBothAccounts(), css: activeUser() && activeUser().activeSystem() == 'PSN' ? 'active' : ''"><a href="#" data-bind="click: usePlaystationAccount">Use Playstation Account</a></li>
 						<li class="divider"></li>
 						<li><a href="#" data-bind="click: toggleShareView">Share URL</a></li>
 						<li><a href="#" data-bind="click: clearFilters">Clear Filters</a></li>
@@ -189,7 +189,7 @@
 		<div class="alert alert-success" data-bind="visible: showMissing" style="display:none; ">
 			<strong>Missing Items</strong> 
 			<span data-bind="foreach: { data: missingSets }">
-				<a data-bind="attr:{ href: 'https://destinydb.com/items/' + $data }"><img data-bind="attr:{src: $root.bungie.getUrl() + _itemDefs[ $data ].icon, title: _itemDefs[ $data ].name }" width="48"></a>
+				<a data-bind="attr:{ href: 'https://destinydb.com/items/' + $data }"><img data-bind="attr:{src: _itemDefs[ $data ] && ($root.bungie.getUrl() +_itemDefs[ $data ].icon), title: _itemDefs[ $data ] && _itemDefs[ $data ].name }" width="48"></a>
 			</span>
 		</div>		
 		<div data-bind="with: $root.activeUser()" style="">
@@ -288,7 +288,7 @@
 					<!-- ko foreach: { data: $root.characters, as: 'character' } -->
 						<div class="move-button move-loadout" data-bind="attr: { title: uniqueName }, click: function(){ $parent.transfer(character.id) }, style: { backgroundImage: icon }, text: classType"></div>
 		  			<!--/ko  -->
-					<p id="loadout-error" class="label label-danger" data-bind="visible: items().length == 0">No items in loadout, click items to add.</p>
+					<p id="loadout-error" class="label label-danger" data-bind="visible: items().length == 0">No items in loadout, click items to add, check to equip.</p>
 				</div>
 				<span id="loadout-contents" data-bind="foreach: { data: items, as: 'item' }">
 					<span class="item" data-bind="css: isGridComplete ? 'complete' : ''">
@@ -297,6 +297,7 @@
 						</a>
 						<div class="attkIcon"><div data-bind="text: primaryStat, style: { backgroundColor: DestinyDamageTypeColors[damageTypeName] }"></div></div>
 					</span>
+					<input type="checkbox" value="true" data-bind="checked: doEquip, click: markAsEquip" title="Enable to mark as the equip item">
 				</span>	 	
 			</div>
 		</div>		
@@ -364,5 +365,5 @@
 				<li><strong>Auto Refresh</strong> Allows option for enable/disable and a refresh interval in seconds.</li>
 			</ul>			
 		</div>
-  </body>
+	</body>
 </html>

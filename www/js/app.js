@@ -216,8 +216,10 @@ var Item = function(model, profile, list){
 		}
 	}
 	this.equip = function(targetCharacterId, callback){
+		//console.log("equip called");
 		var sourceCharacterId = self.characterId;
 		if (targetCharacterId == sourceCharacterId){
+			//console.log("item is already in the character");
 			app.bungie.equip(targetCharacterId, self._id, function(e, result){
 				if (result.Message == "Ok"){
 					self.isEquipped(true);
@@ -239,10 +241,12 @@ var Item = function(model, profile, list){
 			});
 		}
 		else {
+			//console.log("item is NOT already in the character");
 			self.store(targetCharacterId, function(newProfile){
+				//console.log("item is now in the target destination");
 				self.character = newProfile;
 				self.characterId = newProfile.id;
-				self.equip(targetCharacterId);
+				self.equip(targetCharacterId, callback);
 			});
 		}
 	}
@@ -462,6 +466,15 @@ var perksTemplate = _.template('<div class="destt-talent">' +
 	'<% }) %>' +
 '</div>');
 
+var User = function(model){
+	var self = this;
+	_.each(model, function(value, key){
+		self[key] = value;
+	});	
+	//try loading the Playstation account first
+	this.activeSystem = ko.observable(self.psnId ? "PSN" : "XBL" );
+}
+
 var app = new (function() {
 	var self = this;
 
@@ -532,7 +545,7 @@ var app = new (function() {
 	this.showUniques =  ko.observable(defaults.showUniques);
 	
 	this.activeItem = ko.observable();
-	this.activeUser = ko.observable();
+	this.activeUser = ko.observable(new User());
 
 	this.weaponTypes = ko.observableArray();
 	this.characters = ko.observableArray();
@@ -565,10 +578,10 @@ var app = new (function() {
 		self.refreshSeconds(defaults.refreshSeconds);
 		self.tierFilter(defaults.tierFilter);
 		self.typeFilter(defaults.typeFilter);
-		self.dmgFilter(defaults.dmgFilter);
+		self.dmgFilter.removeAll();
 		self.progressFilter(defaults.progressFilter);
-		self.setFilter(defaults.setFilter);
-		self.setFilterFix(defaults.setFilter);
+		self.setFilter.removeAll()
+		self.setFilterFix.removeAll()
 		self.shareView(defaults.shareView);
 		self.shareUrl (defaults.shareUrl);
 		self.showMissing(defaults.showMissing);
@@ -667,10 +680,8 @@ var app = new (function() {
 		self.activeView($(event.target).parent().attr("value"));
 	}	
 	this.setDmgFilter = function(model, event){
-		var dmgType = $(event.target).parent().attr("value");
+		var dmgType = $(event.target).parents('li:first').attr("value");
 		self.dmgFilter.indexOf(dmgType) == -1 ? self.dmgFilter.push(dmgType) : self.dmgFilter.remove(dmgType);
-		//not sure why this happens
-		self.dmgFilter.remove(undefined);
 	}
 	this.setTierFilter = function(model, event){
 		self.tierFilter($(event.target).parent().attr("value"));
@@ -770,16 +781,8 @@ var app = new (function() {
 	}
 	
 	this.hasBothAccounts = function(){
-		return self.activeUser() && !_.isEmpty(self.activeUser().psnId) && !_.isEmpty(self.activeUser().gamerTag);
+		return !_.isEmpty(self.activeUser().psnId) && !_.isEmpty(self.activeUser().gamerTag);
 	}
-	
-	this.hasXboxAccount = ko.computed(function(){
-		return self.activeUser() && !_.isEmpty(self.activeUser().gamerTag) && self.hasBothAccounts();
-	})
-	
-	this.hasPsnAccount = ko.computed(function(){
-		return self.activeUser() && !_.isEmpty(self.activeUser().psnId) && self.hasBothAccounts();
-	})
 	
 	this.useXboxAccount = function(){
 		self.activeUser().activeSystem("XBL");
@@ -801,7 +804,7 @@ var app = new (function() {
 		function done(){
 			count++;
 			if (count == total){
-				console.log("finished loading");
+				//console.log("finished loading");
 				self.shareUrl(new report().de());
 				self.loadingUser(false);
 			}
@@ -874,19 +877,21 @@ var app = new (function() {
 		});		
 	}
 	
-	this.loadData = function(){
+	this.loadData = function(ref, loop){
 		if (self.loadingUser() == false){
 			self.loadingUser(true);
 			self.bungie = new bungie(self.bungie_cookies); 
 			self.characters.removeAll();
 			self.bungie.user(function(user){
-				//try loading the Playstation account first
-				user.activeSystem = ko.observable(user.psnId ? "PSN" : "XBL" );			
-				self.activeUser(user);
+				self.activeUser(new User(user));
 				if (user.error){
 					self.loadingUser(false);
 					return
-				}				
+				}
+				if (ref && loop){
+					ref.close();
+					clearInterval(loop);
+				}
 				self.search();			
 			});		
 		}
@@ -895,6 +900,7 @@ var app = new (function() {
 	this.refreshHandler = function(){
 		clearInterval(self.refreshInterval);
 		if (self.loadoutMode() == true){
+			if ($(".navbar-toggle").is(":visible")) $(".navbar-toggle").click();
 			$("body").css("padding-bottom","260px");
 		}
 		else {
@@ -903,32 +909,6 @@ var app = new (function() {
 		if (self.doRefresh() == 1 && self.loadoutMode() == false){
 			self.refreshInterval = setInterval(self.loadData, self.refreshSeconds() * 1000);
 		}
-	}
-	
-	
-	this.revalidateBungieCookie = function(){
-		console.log("creating hidden window");
-		var loop, ref = window.open('https://www.bungie.net', '_blank', 'location=no');
-		ref.addEventListener('loadstop', function(event) {
-			console.log("window finished loading");
-			setTimeout(function(){
-				clearInterval(loop);
-				loop = setInterval(function() {
-					ref.executeScript({
-						code: 'document.cookie'
-					}, function(result) {
-						if (result != ""){
-							clearInterval(loop);
-							console.log("got a new cookie " + result);
-							ref.close();		
-							self.bungie_cookies = result.toString();
-							window.localStorage.setItem("bungie_cookies", result.toString());
-							self.loadData();
-						}
-					});
-				}, 10);
-			}, 10000);			
-		});
 	}
 	
 	this.donate = function(){
@@ -952,9 +932,7 @@ var app = new (function() {
 								if ((result || "").toString().indexOf("bungled") > -1){
 									self.bungie_cookies = result;
 									window.localStorage.setItem("bungie_cookies", result);
-									self.loadData();
-									ref.close();
-									clearInterval(loop);
+									self.loadData(ref, loop);
 								}
 							});
 						}, 500);				
@@ -1025,7 +1003,7 @@ var app = new (function() {
 		
 		if (isMobile && isEmptyCookie){
 			console.log("code 99");
-			self.activeUser({"code": 99, "error": "Please sign-in to continue."});
+			self.activeUser(new User({"code": 99, "error": "Please sign-in to continue."}));
 		}	
 		else {
 			console.log("loadData");
@@ -1039,12 +1017,17 @@ var app = new (function() {
 		});
 		ko.applyBindings(self);
 	}
-});
+}); 
 
 window.zam_tooltips = { addIcons: false, colorLinks: false, renameLinks: false, renderCallback: app.renderCallback, isEnabled: app.tooltipsEnabled() };
 
 if (isMobile){
 	document.addEventListener('deviceready', app.init, false);
+	$(document).on('deviceready', function () {
+	    if (window.device && parseFloat(window.device.version) >= 7.0) {
+		$('body').addClass('iOS7');
+	    }
+	});
 } else {
 	$(document).ready(app.init);
 }
