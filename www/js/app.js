@@ -1064,6 +1064,7 @@ var app = new (function() {
 		
 		if (isMobile && isEmptyCookie){
 			console.log("code 99");
+			self.bungie = new bungie();
 			self.activeUser(new User({"code": 99, "error": "Please sign-in to continue."}));
 		}	
 		else {
