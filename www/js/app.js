@@ -238,7 +238,7 @@ var Item = function(model, profile){
 			app.bungie.equip(targetCharacterId, self._id, function(e, result){
 				if (result.Message == "Ok"){
 					self.isEquipped(true);
-					self.items().forEach(function(item){
+					self.character.items().forEach(function(item){
 						if (item != self && item.bucketType == self.bucketType){
 							item.isEquipped(false);							
 						}
@@ -327,29 +327,29 @@ var Item = function(model, profile){
 	}
 	
 	this.store = function(targetCharacterId, callback){
-		console.log("item.store");
-		console.log(arguments);
+		//console.log("item.store");
+		//console.log(arguments);
 		var sourceCharacterId = self.characterId, transferAmount = 1;
 		var done = function(){			
 			if (targetCharacterId == "Vault"){
-				console.log("from character to vault");
+				//console.log("from character to vault");
 				self.unequip(function(){
-					console.log("calling transfer from character to vault");
+					//console.log("calling transfer from character to vault");
 					self.transfer(sourceCharacterId, "Vault", transferAmount, callback);
 				});
 			}
 			else if (sourceCharacterId !== "Vault"){
-				console.log("from character to vault to character");
+				//console.log("from character to vault to character");
 				self.unequip(function(){
-					console.log("unquipped item");
+					//console.log("unquipped item");
 					self.transfer(sourceCharacterId, "Vault", transferAmount, function(){
-						console.log("xfered item to vault");
+						//console.log("xfered item to vault");
 						self.transfer("Vault", targetCharacterId, transferAmount, callback);
 					});
 				});
 			}
 			else {
-				console.log("from vault to character");
+				//console.log("from vault to character");
 				self.transfer("Vault", targetCharacterId, transferAmount, callback);
 			}		
 		}
@@ -562,7 +562,8 @@ var app = new (function() {
 	
 	this.activeItem = ko.observable();
 	this.activeUser = ko.observable(new User());
-
+	this.activeView = ko.observable(0);
+	
 	this.weaponTypes = ko.observableArray();
 	this.characters = ko.observableArray();
 	this.orderedCharacters = ko.computed(function(){
@@ -656,28 +657,56 @@ var app = new (function() {
 		callback($content.html());
 	}
 	this.toggleListener = function(){
+		self.toggleBootstrapMenu();
 		self.listenerEnabled(!self.listenerEnabled());
 	}
 	this.toggleRefresh = function(){
+		self.toggleBootstrapMenu();
 		self.doRefresh(!self.doRefresh());
 	}	
 	this.toggleDestinyTooltips = function(){
+		self.toggleBootstrapMenu();
 		self.tooltipsEnabled(!self.tooltipsEnabled());		
 	}
 	this.toggleShareView = function(){
+		self.toggleBootstrapMenu();
 		self.shareView(!self.shareView());
 	}
 	this.toggleShowUniques = function(){
+		self.toggleBootstrapMenu();
 		self.showUniques(!self.showUniques());
 	}
 	this.toggleShowMissing = function(){
+		self.toggleBootstrapMenu();
 		self.showMissing(!self.showMissing());
 	}
 	this.setSetFilter = function(model, event){
+		self.toggleBootstrapMenu();
 		var collection = $(event.target).parent().attr("value");
 		self.setFilter(collection == "All" ? [] : _collections[collection]);
 		self.setFilterFix(collection == "All" ? [] : _collectionsFix[collection]);
 	}
+	this.setView = function(model, event){
+		self.toggleBootstrapMenu();
+		self.activeView($(event.target).parent().attr("value"));
+	}	
+	this.setDmgFilter = function(model, event){
+		self.toggleBootstrapMenu();
+		var dmgType = $(event.target).parents('li:first').attr("value");
+		self.dmgFilter.indexOf(dmgType) == -1 ? self.dmgFilter.push(dmgType) : self.dmgFilter.remove(dmgType);
+	}
+	this.setTierFilter = function(model, event){
+		self.toggleBootstrapMenu();
+		self.tierFilter($(event.target).parent().attr("value"));
+	}
+	this.setTypeFilter = function(model, event){
+		self.toggleBootstrapMenu();
+		self.typeFilter($(event.target).parent().attr("value"));
+	}
+	this.setProgressFilter = function(model, event){
+		self.toggleBootstrapMenu();
+		self.progressFilter($(event.target).parent().attr("value"));
+	}	
 	this.missingSets = ko.computed(function(){
 		var missingIds = [];
 		self.setFilter().concat(self.setFilterFix()).forEach(function(item){
@@ -691,24 +720,6 @@ var app = new (function() {
 		});
 		return missingIds;
 	})
-	
-	this.activeView = ko.observable(0);
-	this.setView = function(model, event){
-		self.activeView($(event.target).parent().attr("value"));
-	}	
-	this.setDmgFilter = function(model, event){
-		var dmgType = $(event.target).parents('li:first').attr("value");
-		self.dmgFilter.indexOf(dmgType) == -1 ? self.dmgFilter.push(dmgType) : self.dmgFilter.remove(dmgType);
-	}
-	this.setTierFilter = function(model, event){
-		self.tierFilter($(event.target).parent().attr("value"));
-	}
-	this.setTypeFilter = function(model, event){
-		self.typeFilter($(event.target).parent().attr("value"));
-	}
-	this.setProgressFilter = function(model, event){
-		self.progressFilter($(event.target).parent().attr("value"));
-	}
 						
 	var processItem = function(profile){	
 		return function(item){
@@ -919,6 +930,8 @@ var app = new (function() {
 					return
 				}
 				if (ref && loop){
+					console.log(ref);
+					console.log(loop);
 					ref.close();
 					clearInterval(loop);
 				}
@@ -927,17 +940,22 @@ var app = new (function() {
 		}
 	}
 	
+	this.toggleBootstrapMenu = function(){
+		if ($(".navbar-toggle").is(":visible")) 
+			$(".navbar-toggle").click();
+	}
+	
 	this.refreshHandler = function(){
 		clearInterval(self.refreshInterval);
 		if (self.loadoutMode() == true){
-			if ($(".navbar-toggle").is(":visible")) $(".navbar-toggle").click();
+			self.toggleBootstrapMenu();
 			$("body").css("padding-bottom","260px");
 		}
 		else {
 			$("body").css("padding-bottom","0");
 		}
 		if (self.doRefresh() == 1 && self.loadoutMode() == false){
-			self.refreshInterval = setInterval(self.loadData, self.refreshSeconds() * 1000);
+			self.refreshInterval = setInterval(function(){ self.loadData() }, self.refreshSeconds() * 1000);
 		}
 	}
 	
@@ -1037,7 +1055,7 @@ var app = new (function() {
 		}	
 		else {
 			console.log("loadData");
-			setTimeout(self.loadData, isChrome ? 1 : 5000);		
+			setTimeout(function(){ self.loadData() }, isChrome || isMobile ? 1 : 5000);		
 		}
 		$("form").bind("submit", false);
 		$("html").click(function(e){
