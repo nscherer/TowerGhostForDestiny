@@ -202,7 +202,7 @@ var Item = function(model, profile){
 		if (self.isEquipped() == true){
 			//console.log("and its actually equipped");
 			var otherEquipped = false, itemIndex = -1;
-			var otherItems = _.where( self.character[self.list](), { bucketType: self.bucketType });
+			var otherItems = _.where( self.character.items(), { bucketType: self.bucketType });
 			var tryNextItem = function(){			
 				var item = otherItems[++itemIndex];
 				//console.log(item.description);
@@ -919,24 +919,32 @@ var app = new (function() {
 	}
 	
 	this.loadData = function(ref, loop){
+		console.log("loadData here loadingUser() is " + self.loadingUser());
 		if (self.loadingUser() == false){
 			self.loadingUser(true);
 			self.bungie = new bungie(self.bungie_cookies); 
 			self.characters.removeAll();
-			self.bungie.user(function(user){
-				self.activeUser(new User(user));
-				if (user.error){
-					self.loadingUser(false);
-					return
-				}
-				if (ref && loop){
-					console.log(ref);
-					console.log(loop);
-					ref.close();
-					clearInterval(loop);
-				}
-				self.search();			
-			});		
+			console.log("bungie.user");
+			try {
+				self.bungie.user(function(user){
+					console.log("bungie.user out");
+					console.log(JSON.stringify(user));
+					self.activeUser(new User(user));
+					if (user.error){
+						self.loadingUser(false);
+						return
+					}
+					console.log("close window? " + (ref && loop));
+					if (ref && loop){
+						console.log("yes");
+						ref.close();
+						clearInterval(loop);
+					}
+					self.search();			
+				});	
+			}catch(e){
+				console.log(e.toString());
+			}				
 		}
 	}
 	
@@ -963,48 +971,53 @@ var app = new (function() {
 		window.open("http://bit.ly/1Jmb4wQ","_blank");
 	}
 	
+	this.readBungieCookie = function(ref, loop){
+		ref.executeScript({
+			code: 'document.cookie'
+		}, function(result) {
+			console.log("found result in loadstop " + result);
+			if ((result || "").toString().indexOf("bungled") > -1){
+				console.log("result is good passing to loadData");
+				self.bungie_cookies = result;
+				window.localStorage.setItem("bungie_cookies", result);
+				self.loadData(ref, loop);
+			}
+		});	
+	}
+	
 	this.openBungieWindow = function(type){
 		return function(){
-			var loop, newCookie;
+			var loop;
 			//overwrite the same reference to avoid crashing?
 			window.ref = window.open('https://www.bungie.net/en/User/SignIn/' + type, '_blank', 'location=yes');			
 			if (isMobile){
 				ref.addEventListener('loadstop', function(event) {
-					if (self.listenerEnabled() == true){
-						clearInterval(loop);
-						loop = setInterval(function() {
-							ref.executeScript({
-								code: 'document.cookie'
-							}, function(result) {
-								console.log("found result in loadstop " + result);
-								if ((result || "").toString().indexOf("bungled") > -1){
-									self.bungie_cookies = result;
-									window.localStorage.setItem("bungie_cookies", result);
-									self.loadData(ref, loop);
-								}
-							});
-						}, 500);				
-					}
+					console.log("loadstop");
+					clearInterval(loop);
+					ref.executeScript({
+						code: 'document.location.href'
+					}, function(result) {
+						/* only load cookie reader on homepage */		
+						if (result.toString() == self.bungie.getUrl()){
+							console.log("starting reader");
+							count = 0,
+							loop = setInterval(function() {
+								console.log("trying a read " + (count++));
+								self.readBungieCookie(ref, loop);							
+							}, 500);
+						}
+					});
+					
 				});
 				ref.addEventListener('loadstart', function(event) {
 					clearInterval(loop);
 				});
 				ref.addEventListener('exit', function() {
-					if (self.characters().length == 0){
+					if (self.loadingUser() == false){
 						clearInterval(loop);
 						if (_.isEmpty(self.bungie_cookies)){
 							loop = setInterval(function() {
-								ref.executeScript({
-									code: 'document.cookie'
-								}, function(result) {
-									console.log("found result in exit " + result);
-									if ((result || "").toString().indexOf("bungled") > -1){
-										self.bungie_cookies = result;
-										window.localStorage.setItem("bungie_cookies", result);
-										self.loadData();		
-										clearInterval(loop);
-									}
-								});
+								self.readBungieCookie(ref, loop);
 							}, 500);
 						}
 						else {
