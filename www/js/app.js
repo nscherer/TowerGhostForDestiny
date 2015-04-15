@@ -1043,7 +1043,6 @@ var app = new (function() {
 				membershipId: parseFloat(app.activeUser().user.membershipId),
 				loadouts: JSON.stringify(self.loadouts())
 			}
-			console.log(params);
 			self.yqlRequest(params, function(results){
 				if (results.success) BootstrapDialog.alert("Loadouts saved to the cloud");
 				else BootstrapDialog.alert("Error has occurred saving loadouts");
@@ -1058,23 +1057,22 @@ var app = new (function() {
 	this.loadLoadouts = function(){
 		if (supportsCloudSaves == true){
 			self.yqlRequest({ action: "load", membershipId: parseFloat(self.activeUser().user.membershipId) }, function(results){
-				window.l = results.json.loadouts;
-				var _loadouts = _.map( _.isArray(results.json.loadouts) ? results.json.loadouts : [results.json.loadouts], function(loadout){
-					window.x = loadout;
-					console.log(loadout);
-					loadout.ids = _.isArray(loadout.ids) ? loadout.ids : [loadout.ids];
-					loadout.ids = _.map(loadout.ids, function(id){
-						return id.toString().indexOf("E") > -1 ? id.split("E")[0] * Math.pow(10,id.split("E")[1]) : id;
+				if (results && results.json && results.json.loadouts){
+					var _loadouts = _.map( _.isArray(results.json.loadouts) ? results.json.loadouts : [results.json.loadouts], function(loadout){
+						loadout.ids = _.isArray(loadout.ids) ? loadout.ids : [loadout.ids];
+						loadout.ids = _.map(loadout.ids, function(id){
+							return id.toString().indexOf("E") > -1 ? id.split("E")[0] * Math.pow(10,id.split("E")[1]) : id;
+						});
+						loadout.equipIds = _.isEmpty(loadout.equipIds) ? [] : loadout.equipIds;
+						loadout.equipIds = _.isArray(loadout.equipIds) ? loadout.equipIds : [loadout.equipIds];
+						loadout.equipIds = _.map(loadout.equipIds, function(obj){
+							obj._id = obj._id.toString().indexOf("E") > -1 ? obj._id.split("E")[0] * Math.pow(10,obj._id.split("E")[1]) : obj._id;
+							return obj;
+						});
+						return new Loadout(loadout);
 					});
-					loadout.equipIds = _.isEmpty(loadout.equipIds) ? [] : loadout.equipIds;
-					loadout.equipIds = _.isArray(loadout.equipIds) ? loadout.equipIds : [loadout.equipIds];
-					loadout.equipIds = _.map(loadout.equipIds, function(obj){
-						obj._id = obj._id.toString().indexOf("E") > -1 ? obj._id.split("E")[0] * Math.pow(10,obj._id.split("E")[1]) : obj._id;
-						return obj;
-					});
-					return new Loadout(loadout);
-				});
-				self.loadouts(_loadouts);
+					self.loadouts(_loadouts);
+				}
 			});
 		}
 		else {
