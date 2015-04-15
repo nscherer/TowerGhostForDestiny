@@ -136,15 +136,20 @@ var Loadout = function(model){
 			};
 			var masterSwapArray= [], sourceItems =  self.items();
 			if (sourceItems.length > 0){
-				var targetList = targetCharacter.items();				
+				var targetList = targetCharacter.items();
+				var isVault = targetCharacter.id == "Vault";
 				var sourceGroups = _.groupBy( sourceItems, 'bucketType' );
 				var targetGroups = _.groupBy( targetList, 'bucketType' );	
 				var masterSwapArray = _.flatten(_.map(sourceGroups, function(group, key){
 					var sourceBucket = sourceGroups[key];
 					var targetBucket = targetGroups[key];
+					var isWeapon = DestinyWeaponPieces.indexOf(key) > -1;
+					var isArmor = DestinyArmorPieces.indexOf(key) > -1;
 					/* use the swap item strategy */
-					/* by finding a random item in the targetBucket that isnt part of sourceBucket */					
-					if (sourceBucket.length + targetBucket.length > 9){
+					/* by finding a random item in the targetBucket that isnt part of sourceBucket */
+					if ( sourceBucket.length + targetBucket.length > 9 && isVault == false || 
+						sourceBucket.length + targetBucket.length > 35 && isVault == true && isWeapon || 
+						sourceBucket.length + targetBucket.length > 23 && isVault == true && isArmor ){
 						var sourceBucketIds = _.pluck( sourceBucket, "_id");
 						var swapArray = _.map(sourceBucket, function(item){
 							/* if the item is already in the targetBucket */
