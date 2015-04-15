@@ -1036,7 +1036,8 @@ var app = new (function() {
 		});
 	}
 	
-	this.saveLoadouts = function(){
+	this.saveLoadouts = function(includeMessage){
+		var _includeMessage = _.isUndefined(includeMessage) ? true : includeMessage;
 		if (supportsCloudSaves == true){
 			var params = {
 				action: "save",
@@ -1044,8 +1045,10 @@ var app = new (function() {
 				loadouts: JSON.stringify(self.loadouts())
 			}
 			self.yqlRequest(params, function(results){
-				if (results.success) BootstrapDialog.alert("Loadouts saved to the cloud");
-				else BootstrapDialog.alert("Error has occurred saving loadouts");
+				if (_includeMessage == true){
+					if (results.success) BootstrapDialog.alert("Loadouts saved to the cloud");
+					else BootstrapDialog.alert("Error has occurred saving loadouts");
+				}
 			});
 		}
 		else {
@@ -1053,30 +1056,40 @@ var app = new (function() {
 			window.localStorage.setItem("loadouts", loadouts);
 		}
 	}
-	// "[{"name":"lie","ids":["6917529045842885616"],"equipIds":[]}]"
+
 	this.loadLoadouts = function(){
+		var _loadouts = window.localStorage.getItem("loadouts");
+		if (!_.isEmpty(_loadouts)){
+			_loadouts = _.map(JSON.parse(_loadouts), function(loadout){
+				return new Loadout(loadout);
+			})
+		}
 		if (supportsCloudSaves == true){
 			self.yqlRequest({ action: "load", membershipId: parseFloat(self.activeUser().user.membershipId) }, function(results){
+				var _results = [];
 				if (results && results.json && results.json.loadouts){
-					var _loadouts = _.map( _.isArray(results.json.loadouts) ? results.json.loadouts : [results.json.loadouts], function(loadout){
+				    _results = _.isArray(results.json.loadouts) ? results.json.loadouts : [results.json.loadouts];
+					_results = _.map(_results, function(loadout){
 						loadout.ids = _.isArray(loadout.ids) ? loadout.ids : [loadout.ids];
 						loadout.equipIds = _.isEmpty(loadout.equipIds) ? [] : loadout.equipIds;
 						loadout.equipIds = _.isArray(loadout.equipIds) ? loadout.equipIds : [loadout.equipIds];
 						return new Loadout(loadout);
 					});
-					self.loadouts(_loadouts);
+				}
+				/* one time migrate joins the two arrays and clears the local one */
+				if(_loadouts.length > 0){
+					_results = _loadouts.concat(_results);
+					window.localStorage.setItem("loadouts", "");
+				}	
+				self.loadouts(_results);
+				/* one time migrate saves the new joined array to the cloud */
+				if(_loadouts.length > 0){
+					self.saveLoadouts(false);
 				}
 			});
 		}
-		else {
-			var _loadouts = window.localStorage.getItem("loadouts");
-			if (!_.isEmpty(_loadouts)){
-				self.loadouts(
-					_.map(JSON.parse(_loadouts), function(loadout){
-						return new Loadout(loadout);
-					})
-				);
-			}		
+		else if (_loadouts.length > 0){
+			self.loadouts(_loadouts);
 		}
 	}
 	this.init = function(){
