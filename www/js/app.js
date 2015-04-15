@@ -1060,15 +1060,8 @@ var app = new (function() {
 				if (results && results.json && results.json.loadouts){
 					var _loadouts = _.map( _.isArray(results.json.loadouts) ? results.json.loadouts : [results.json.loadouts], function(loadout){
 						loadout.ids = _.isArray(loadout.ids) ? loadout.ids : [loadout.ids];
-						loadout.ids = _.map(loadout.ids, function(id){
-							return id.toString().indexOf("E") > -1 ? id.split("E")[0] * Math.pow(10,id.split("E")[1]) : id;
-						});
 						loadout.equipIds = _.isEmpty(loadout.equipIds) ? [] : loadout.equipIds;
 						loadout.equipIds = _.isArray(loadout.equipIds) ? loadout.equipIds : [loadout.equipIds];
-						loadout.equipIds = _.map(loadout.equipIds, function(obj){
-							obj._id = obj._id.toString().indexOf("E") > -1 ? obj._id.split("E")[0] * Math.pow(10,obj._id.split("E")[1]) : obj._id;
-							return obj;
-						});
 						return new Loadout(loadout);
 					});
 					self.loadouts(_loadouts);
