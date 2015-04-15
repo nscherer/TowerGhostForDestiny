@@ -1,5 +1,6 @@
 window.isChrome = (typeof chrome !== "undefined");
 window.isMobile = (/ios|iphone|ipod|ipad|android|iemobile/i.test(navigator.userAgent));
+window.supportsCloudSaves = window.isChrome;
 
 var dialog = (function(options){
 	var self = this;
@@ -927,7 +928,8 @@ var app = new (function() {
 					ref.close();
 					clearInterval(loop);
 				}
-				self.search();			
+				self.loadLoadouts();
+				self.search();
 			});			
 		}
 	}
@@ -1023,13 +1025,75 @@ var app = new (function() {
 		self.characters(self.characters().concat( self.characters.splice(0,1) ));
 	}
 	
+	this.yqlRequest = function(params, callback){
+		var request = window.encodeURIComponent("http://www.towerghostfordestiny.com/api.cfm?" + $.param(params))
+		var requestURL = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20json%20where%20url%3D%22" + request + "%22&format=json&callback=";
+		$.ajax({
+			url: requestURL,
+			success: function(response){
+				callback(response.query.results);
+			}
+		});
+	}
+	
+	this.saveLoadouts = function(){
+		if (supportsCloudSaves == true){
+			var params = {
+				action: "save",
+				membershipId: parseFloat(app.activeUser().user.membershipId),
+				loadouts: JSON.stringify(self.loadouts())
+			}
+			console.log(params);
+			self.yqlRequest(params, function(results){
+				if (results.success) BootstrapDialog.alert("Loadouts saved to the cloud");
+				else BootstrapDialog.alert("Error has occurred saving loadouts");
+			});
+		}
+		else {
+			var loadouts = ko.toJSON(self.loadouts());
+			window.localStorage.setItem("loadouts", loadouts);
+		}
+	}
+	// "[{"name":"lie","ids":["6917529045842885616"],"equipIds":[]}]"
+	this.loadLoadouts = function(){
+		if (supportsCloudSaves == true){
+			self.yqlRequest({ action: "load", membershipId: parseFloat(self.activeUser().user.membershipId) }, function(results){
+				window.l = results.json.loadouts;
+				var _loadouts = _.map( _.isArray(results.json.loadouts) ? results.json.loadouts : [results.json.loadouts], function(loadout){
+					window.x = loadout;
+					console.log(loadout);
+					loadout.ids = _.isArray(loadout.ids) ? loadout.ids : [loadout.ids];
+					loadout.ids = _.map(loadout.ids, function(id){
+						return id.toString().indexOf("E") > -1 ? id.split("E")[0] * Math.pow(10,id.split("E")[1]) : id;
+					});
+					loadout.equipIds = _.isEmpty(loadout.equipIds) ? [] : loadout.equipIds;
+					loadout.equipIds = _.isArray(loadout.equipIds) ? loadout.equipIds : [loadout.equipIds];
+					loadout.equipIds = _.map(loadout.equipIds, function(obj){
+						obj._id = obj._id.toString().indexOf("E") > -1 ? obj._id.split("E")[0] * Math.pow(10,obj._id.split("E")[1]) : obj._id;
+						return obj;
+					});
+					return new Loadout(loadout);
+				});
+				self.loadouts(_loadouts);
+			});
+		}
+		else {
+			var _loadouts = window.localStorage.getItem("loadouts");
+			if (!_.isEmpty(_loadouts)){
+				self.loadouts(
+					_.map(JSON.parse(_loadouts), function(loadout){
+						return new Loadout(loadout);
+					})
+				);
+			}		
+		}
+	}
 	this.init = function(){
 		self.doRefresh.subscribe(self.refreshHandler);
 		self.refreshSeconds.subscribe(self.refreshHandler);
 		self.loadoutMode.subscribe(self.refreshHandler);		
 		self.bungie_cookies = window.localStorage.getItem("bungie_cookies");
 		var isEmptyCookie = (self.bungie_cookies || "").indexOf("bungled") == -1;
-		var _loadouts = window.localStorage.getItem("loadouts");
 		(function() {
 		  if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
 		    var msViewportStyle = document.createElement("style");
@@ -1039,14 +1103,6 @@ var app = new (function() {
 		    document.getElementsByTagName("head")[0].appendChild(msViewportStyle);
 		  }
 		})();
-		if (!_.isEmpty(_loadouts)){
-			self.loadouts(
-				_.map(JSON.parse(_loadouts), function(loadout){
-					return new Loadout(loadout);
-				})
-			);
-		}		
-		
 		if (isMobile && isEmptyCookie){
 			self.bungie = new bungie();
 			self.activeUser(new User({"code": 99, "error": "Please sign-in to continue."}));
