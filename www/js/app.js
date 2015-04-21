@@ -27,79 +27,9 @@ var dialog = (function(options){
 		self.modal.open();
 		return self;
 	}
+	
+	return self.modal;
 });
-
-var activeElement;
-var moveItemPositionHandler = function(element, item){
-	return function(){
-		if (app.loadoutMode() == true){
-			if (app.activeLoadout().ids().indexOf( item._id )>-1)
-				app.activeLoadout().ids.remove(item._id);
-			else {
-				if ( _.where( app.activeLoadout().items(), { bucketType: item.bucketType }).length < 9){
-					app.activeLoadout().ids.push(item._id);
-				}
-				else {
-					BootstrapDialog.alert("You cannot create a loadout with more than 9 items in the " + item.bucketType + " slots");
-				}
-			}
-		}
-		else {
-			var $movePopup = $( "#move-popup" );
-			if (item.bucketType == "Post Master"){
-				return BootstrapDialog.alert("Post Master items cannot be transferred with the API.");
-			}
-			if (element	== activeElement){
-				$movePopup.hide();
-				activeElement = null;
-			}	
-			else {
-				activeElement = element;
-				if (window.isMobile){
-					$("body").css("padding-bottom","80px");
-					/* removing the delay and adding padding-bottom need to retest issue #12 (bottom row item) */
-					$movePopup.show();
-				}
-				else {
-					$movePopup.removeClass("navbar navbar-default navbar-fixed-bottom").addClass("desktop").show().position({
-						my: "left bottom",
-						at: "left top",
-						collision: "none",
-						of: element,
-						using: function(pos, ui){
-							var obj = $(this);
-							setTimeout(function(){
-								var box = $(ui.element.element).find(".move-popup").width();
-								if (box + pos.left > ui.element.width){
-									pos.left = pos.left - box;
-								}
-								obj.css(pos);	
-							},10);
-						}	
-					});
-				}
-			}
-		}	
-	}
-}
-
-window.ko.bindingHandlers.fastclick = {
-	init: function(element, valueAccessor) {
-		FastClick.attach(element);
-		return ko.bindingHandlers.click.init.apply(this, arguments);
-	}
-};
-
-ko.bindingHandlers.moveItem = {
-    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-		Hammer(element)
-			.on("tap", moveItemPositionHandler(element, viewModel))
-			.on("doubletap", function() {
-				$ZamTooltips.lastElement = element;
-				$ZamTooltips.show("destinydb","items",viewModel.id, element);
-			});
-    }
-};
 
 var filterItemByType = function(type, isEquipped){
 	return function(weapon){
@@ -117,36 +47,43 @@ var Profile = function(model){
 	this.icon = ko.observable(self.icon);	
 	this.background = ko.observable(self.background);
 	this.items = ko.observableArray([]);
-	this.weapons = ko.computed(function(){
-		return _.filter(self.items(), function(item){
+	this.uniqueName = self.level + " " + self.race + " " + self.gender + " " + self.classType;
+	this.weapons = ko.computed(this._weapons, this);
+	this.armor = ko.computed(this._armor, this);
+	this.general = ko.computed(this._general, this);
+	this.postmaster = ko.computed(this._postmaster, this);
+}
+
+Profile.prototype = {
+	_weapons: function(){
+		return _.filter(this.items(), function(item){
 			if (DestinyWeaponPieces.indexOf(item.bucketType) > -1 )
 				return item;
 		});
-	});	
-	this.armor = ko.computed(function(){
-		return _.filter(self.items(), function(item){
+	},	
+	_armor: function(){
+		return _.filter(this.items(), function(item){
 			if (DestinyArmorPieces.indexOf(item.bucketType) > -1 )
 				return item;
 		});
-	});
-	this.general = ko.computed(function(){
-		return _.filter(self.items(), function(item){
-			if (DestinyArmorPieces.indexOf(item.bucketType) == -1 && DestinyWeaponPieces.indexOf(item.bucketType) == -1)
+	},
+	_general: function(){
+		return _.filter(this.items(), function(item){
+			if (DestinyArmorPieces.indexOf(item.bucketType) == -1 && DestinyWeaponPieces.indexOf(item.bucketType) == -1 && item.bucketType !== "Post Master" && item.bucketType !== "Subclasses")
 				return item;
 		});
-	});
-	this.postmaster = ko.computed(function(){
-		return _.filter(self.items(), function(item){
+	},
+	_postmaster: function(){
+		return _.filter(this.items(), function(item){
 			if (item.bucketType == "Post Master")
 				return item;
 		});
-	});
-	this.uniqueName = self.level + " " + self.race + " " + self.gender + " " + self.classType;
-	this.get = function(type){
-		return self.items().filter(filterItemByType(type, false));
-	}
-	this.itemEquipped = function(type){
-		return ko.utils.arrayFirst(self.items(), filterItemByType(type, true));
+	},
+	get: function(type){
+		return this.items().filter(filterItemByType(type, false));
+	},
+	itemEquipped: function(type){
+		return ko.utils.arrayFirst(this.items(), filterItemByType(type, true));
 	}
 }
 
@@ -162,8 +99,28 @@ var Item = function(model, profile){
 		app.activeItem(self);
 	}
 	this.primaryStat = self.primaryStat || "";
-	this.hasPerkSearch = function(search){
-		var foundPerk = false;
+	this.isVisible = ko.computed(this._isVisible, this);
+	this.isEquippable = function(avatarId){
+		return ko.computed(function(){
+				//rules for how subclasses can be equipped
+			  var equippableSubclass = (self.bucketType == "Subclasses" && !self.isEquipped() && self.character.id == avatarId) || self.bucketType !== "Subclasses";
+				//if it's in this character and it's equippable
+			 return (!self.isEquipped() && avatarId !== 'Vault' && self.bucketType != 'Materials' && self.bucketType != 'Consumables' && self.description.indexOf("Engram") == -1 && equippableSubclass) || 
+			 	//if it's in another character and it's equippable
+			 	(self.characterId != avatarId && avatarId !== 'Vault' && self.bucketType != 'Materials' && self.bucketType != 'Consumables' && self.description.indexOf("Engram") == -1 && equippableSubclass);
+		});
+	}
+	this.isStoreable = function(avatarId){
+		return ko.computed(function(){
+			return (self.characterId != avatarId && avatarId !== 'Vault' && self.bucketType !== 'Subclasses') ||
+				(self.bucketType == 'Subclasses' && self.isEquipped() && self.character.id == avatarId);
+		});
+	}
+}
+
+Item.prototype = {
+	hasPerkSearch: function(search){
+		var foundPerk = false, self = this;
 		if (self.perks){
 			var vSearch = search.toLowerCase();
 			self.perks.forEach(function(perk){
@@ -172,8 +129,9 @@ var Item = function(model, profile){
 			});
 		}
 		return foundPerk;
-	}
-	this.hashProgress = function(state){
+	},
+	hashProgress: function(state){
+		var self = this;
 		if (typeof self.progression !== "undefined"){
 			/* Missing XP */
 			if (state == 1 && self.progression == false){
@@ -194,15 +152,9 @@ var Item = function(model, profile){
 		else {
 			return false;
 		}
-	}
-	this.isEquippable = function(avatarId){
-		return ko.computed(function(){
-			 return (!self.isEquipped() && avatarId !== 'Vault' && self.bucketType != 'Materials' && self.bucketType != 'Consumables' && self.description.indexOf("Engram") == -1) || 
-			 	(self.characterId != avatarId && avatarId !== 'Vault' && self.bucketType != 'Materials' && self.bucketType != 'Consumables' && self.description.indexOf("Engram") == -1);
-		});
-	}
-	this.isVisible = ko.computed(function(){
-		var $parent = app;
+	},
+	_isVisible: function(){
+		var $parent = app, self = this;
 		var searchFilter = $parent.searchKeyword() == '' || self.hasPerkSearch($parent.searchKeyword()) || 
 			($parent.searchKeyword() !== "" && self.description.toLowerCase().indexOf($parent.searchKeyword().toLowerCase()) >-1);
 		var dmgFilter = $parent.dmgFilter().length ==0 || $parent.dmgFilter().indexOf(self.damageTypeName) > -1;
@@ -224,9 +176,10 @@ var Item = function(model, profile){
 		console.log("description is " + self.description);
 		console.log("keyword has description " + ($parent.searchKeyword() !== "" && self.description.toLowerCase().indexOf($parent.searchKeyword().toLowerCase()) >-1));*/
 		return (searchFilter) && (dmgFilter) && (setFilter) && (tierFilter) && (progressFilter) && (typeFilter) && (uniqueFilter);
-	});
+	},
 	/* helper function that unequips the current item in favor of anything else */
-	this.unequip = function(callback){
+	unequip: function(callback){
+		var self = this;
 		//console.log('trying to unequip too!');
 		if (self.isEquipped() == true){
 			//console.log("and its actually equipped");
@@ -265,8 +218,9 @@ var Item = function(model, profile){
 			//console.log("but not equipped");
 			callback();
 		}
-	}
-	this.equip = function(targetCharacterId, callback, allowReplacement){
+	},
+	equip: function(targetCharacterId, callback, allowReplacement){
+		var self = this;
 		var done = function(){
 			//console.log("making bungie call to equip " + self.description);
 			app.bungie.equip(targetCharacterId, self._id, function(e, result){
@@ -333,12 +287,12 @@ var Item = function(model, profile){
 				self.equip(targetCharacterId, callback, allowReplacement);
 			});
 		}
-	}
-	
-	this.transfer = function(sourceCharacterId, targetCharacterId, amount, cb){		
+	},
+	transfer: function(sourceCharacterId, targetCharacterId, amount, cb){		
 		//console.log("Item.transfer");
 		//console.log(arguments);
 		//setTimeout(function(){
+		var self = this;
 			var isVault = targetCharacterId == "Vault";
 			app.bungie.transfer(isVault ? sourceCharacterId : targetCharacterId, self._id, self.id, amount, isVault, function(e, result){
 				//console.log("app.bungie.transfer after");
@@ -393,11 +347,11 @@ var Item = function(model, profile){
 				}
 			});		
 		//}, 1000);
-	}
-	
-	this.store = function(targetCharacterId, callback){
+	},
+	store: function(targetCharacterId, callback){
 		//console.log("item.store");
 		//console.log(arguments);
+		var self = this;
 		var sourceCharacterId = self.characterId, transferAmount = 1;
 		var done = function(){			
 			if (targetCharacterId == "Vault"){
@@ -410,11 +364,17 @@ var Item = function(model, profile){
 			else if (sourceCharacterId !== "Vault"){
 				//console.log("from character to vault to character");
 				self.unequip(function(){
-					//console.log("unquipped item");
-					self.transfer(sourceCharacterId, "Vault", transferAmount, function(){
-						//console.log("xfered item to vault");
-						self.transfer("Vault", targetCharacterId, transferAmount, callback);
-					});
+					if ( self.bucketType == "Subclasses" ){
+						if (callback)
+							callback(self.character);
+					}
+					else {
+						//console.log("unquipped item");
+						self.transfer(sourceCharacterId, "Vault", transferAmount, function(){
+							//console.log("xfered item to vault");
+							self.transfer("Vault", targetCharacterId, transferAmount, callback);
+						});
+					}					
 				});
 			}
 			else {
@@ -426,17 +386,19 @@ var Item = function(model, profile){
 			if (self.primaryStat == 1){
 				done();
 			}
-			else {
-				(new dialog({
+			else if (app.autoTransferStacks() == true){
+				transferAmount = self.primaryStat; 
+				done();
+			}
+			else {				
+				var dialogItself = (new dialog({
 		            message: "<div>Transfer Amount: <input type='text' id='materialsAmount' value='" + self.primaryStat + "'></div>",
 		            buttons: [
 						{
 		                	label: 'Transfer',
 							cssClass: 'btn-primary',
-							action: function(dialogItself){
-								transferAmount = parseInt($("input#materialsAmount").val());
-								if (!isNaN(transferAmount)){ done(); dialogItself.close(); }
-								else { BootstrapDialog.alert("Invalid amount entered: " + transferAmount); }
+							action: function(){
+								finishTransfer()
 							}
 		            	}, 
 						{
@@ -446,7 +408,13 @@ var Item = function(model, profile){
 			                }
 		            	}
 		            ]
-		        })).title("Transfer Materials").show();			
+		        })).title("Transfer Materials").show(),
+				finishTransfer = function(){
+					transferAmount = parseInt($("input#materialsAmount").val());
+					if (!isNaN(transferAmount)){ done(); dialogItself.modal.close(); }
+					else { BootstrapDialog.alert("Invalid amount entered: " + transferAmount); }
+				}
+				setTimeout(function(){ $("#materialsAmount").select().bind("keyup", function(e){ if(e.keyCode == 13) { finishTransfer() } }) }, 500);	
 			}
 		}
 		else {
@@ -454,6 +422,90 @@ var Item = function(model, profile){
 		}
 	}
 }
+
+var activeElement;
+var moveItemPositionHandler = function(element, item){
+	return function(){
+		if (app.destinyDbMode() == true){
+			window.open(item.href,"_blank");
+			return false;
+		}
+		if (app.loadoutMode() == true){
+			if (app.activeLoadout().ids().indexOf( item._id )>-1)
+				app.activeLoadout().ids.remove(item._id);
+			else {
+				if (item._id == 0){
+					BootstrapDialog.alert("Currently unable to create loadouts with this item type.");
+				}
+				else if ( _.where( app.activeLoadout().items(), { bucketType: item.bucketType }).length < 9){
+					app.activeLoadout().ids.push(item._id);
+				}
+				else {
+					BootstrapDialog.alert("You cannot create a loadout with more than 9 items in the " + item.bucketType + " slots");
+				}
+			}
+		}
+		else {
+			var $movePopup = $( "#move-popup" );
+			if (item.bucketType == "Post Master"){
+				return BootstrapDialog.alert("Post Master items cannot be transferred with the API.");
+			}
+			if (element	== activeElement){
+				$movePopup.hide();
+				activeElement = null;
+			}	
+			else {
+				activeElement = element;
+				if (window.isMobile){
+					$("body").css("padding-bottom","80px");
+					/* removing the delay and adding padding-bottom need to retest issue #12 (bottom row item) */
+					$movePopup.show();
+				}
+				else {
+					$movePopup.removeClass("navbar navbar-default navbar-fixed-bottom").addClass("desktop").show().position({
+						my: "left bottom",
+						at: "left top",
+						collision: "none",
+						of: element,
+						using: function(pos, ui){
+							var obj = $(this);
+							setTimeout(function(){
+								var box = $(ui.element.element).find(".move-popup").width();
+								if (box + pos.left > ui.element.width){
+									pos.left = pos.left - box;
+								}
+								obj.css(pos);	
+							},10);
+						}	
+					});
+				}
+			}
+		}	
+	}
+}
+
+window.ko.bindingHandlers.fastclick = {
+	init: function(element, valueAccessor) {
+		FastClick.attach(element);
+		return ko.bindingHandlers.click.init.apply(this, arguments);
+	}
+};
+
+ko.bindingHandlers.moveItem = {
+    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+	
+		Hammer(element, { time: 5000 })
+			.on("tap", moveItemPositionHandler(element, viewModel))
+			.on("press",function(){
+				viewModel.markAsEquip( viewModel );
+			})
+			.on("doubletap", function() {
+				$ZamTooltips.lastElement = element;
+				$ZamTooltips.show("destinydb","items",viewModel.id, element);
+			});
+    }
+};
+
 
 /*
 targetItem: item,
@@ -514,53 +566,54 @@ var app = new (function() {
 		tierFilter: 0,
 		typeFilter: 0,
 		dmgFilter: [],
+		activeView: 0,
 		progressFilter: 0,
 		setFilter: [],
 		shareView: false,
 		shareUrl: "",
 		showMissing: false,
 		showUniques: false,
-		tooltipsEnabled: isMobile ? false : true
+		tooltipsEnabled: isMobile ? false : true,
+		autoTransferStacks: false
 	};
+	
 	var getValue = function(key){
-		var saved = window.localStorage.getItem(key);
+		var saved = "";
+		if (window.localStorage && window.localStorage.getItem)
+			saved = window.localStorage.getItem(key);
 		if (_.isEmpty(saved)){
 			return defaults[key];
 		}
 		else {
-			return saved == "true"
+			return saved
 		}
 	}
+		
+	var StoreObj = function(key, compare, writeCallback){
+		var value = ko.observable(compare ? getValue(key) == compare : getValue(key));
+		this.read = function(){
+			return value();
+		}
+		this.write = function(newValue){
+			window.localStorage.setItem(key, newValue);
+			value(newValue);
+			if (writeCallback) writeCallback(newValue);
+		}
+	}
+	
 	this.retryCount = ko.observable(0);
 	this.loadingUser = ko.observable(false);
 	this.loadoutMode = ko.observable(false);
+	this.destinyDbMode = ko.observable(false);
 	this.activeLoadout = ko.observable(new Loadout());
 	this.loadouts = ko.observableArray();
 	this.searchKeyword = ko.observable(defaults.searchKeyword);
-	var _doRefresh = ko.observable(getValue("doRefresh"));
-	var _tooltipsEnabled = ko.observable(getValue("tooltipsEnabled"));
-	this.doRefresh = ko.computed({
-		read: function(){
-			return _doRefresh();
-		},
-		write: function(newValue){
-			window.localStorage.setItem("autoRefresh", newValue);
-			_doRefresh(newValue);
-		}
-	});
-	this.tooltipsEnabled = ko.computed({
-		read: function(){
-			return _tooltipsEnabled();
-		},
-		write: function(newValue){
-			$ZamTooltips.isEnabled = newValue;
-			window.localStorage.setItem("tooltipsEnabled", newValue);
-			_tooltipsEnabled(newValue);
-		}
-	});
-
-	this.refreshSeconds = ko.observable(defaults.refreshSeconds);
-	this.tierFilter = ko.observable(defaults.tierFilter);
+	this.activeView = ko.computed(new StoreObj("activeView"));
+	this.doRefresh = ko.computed(new StoreObj("doRefresh", "true"));
+	this.autoTransferStacks = ko.computed(new StoreObj("autoTransferStacks", "true"));
+	this.tooltipsEnabled = ko.computed(new StoreObj("tooltipsEnabled", "true", function(newValue){ $ZamTooltips.isEnabled = newValue; }));
+	this.refreshSeconds = ko.computed(new StoreObj("refreshSeconds"));
+	this.tierFilter = ko.computed(new StoreObj("tierFilter"));
 	this.typeFilter = ko.observable(defaults.typeFilter);
 	this.dmgFilter =  ko.observableArray(defaults.dmgFilter);
 	this.progressFilter =  ko.observable(defaults.progressFilter);
@@ -573,7 +626,6 @@ var app = new (function() {
 	
 	this.activeItem = ko.observable();
 	this.activeUser = ko.observable(new User());
-	this.activeView = ko.observable(0);
 	
 	this.weaponTypes = ko.observableArray();
 	this.characters = ko.observableArray();
@@ -601,6 +653,7 @@ var app = new (function() {
 	}
 	
 	this.clearFilters = function(model, element){
+		self.activeView(defaults.activeView);
 		self.searchKeyword(defaults.searchKeyword);
 		self.doRefresh(defaults.doRefresh);
 		self.refreshSeconds(defaults.refreshSeconds);
@@ -627,15 +680,20 @@ var app = new (function() {
 	      });
 	   	});
 		if (activeItem){
-			/* Weapons */
+			/* Damage Colors */
 			if ($content.find("[class*='destt-damage-color-']").length == 0 && activeItem.damageType > 1){
 				var burnIcon = $("<div></div>").addClass("destt-primary-damage-" + activeItem.damageType);
 				$content.find(".destt-primary").addClass("destt-damage-color-" + activeItem.damageType).prepend(burnIcon);
 			}
-			if (activeItem.perks && $content.find(".destt-talent").length == 0){
+			/* Weapon Perks */
+			if ( (activeItem.perks && $content.find(".destt-talent").length == 0) ){
 				$content.find(".destt-info").prepend(perksTemplate({ perks: activeItem.perks }));
 			}
-			/* Armor */
+			/* Armor Perks */
+			else if (activeItem.perks && DestinyArmorPieces.indexOf(activeItem.bucketType) > -1 && self.tierType !== 6){
+				$content.find(".destt-talent").replaceWith( perksTemplate({ perks: activeItem.perks }));
+			}
+			/* Armor Stats */
 			var stats = $content.find(".destt-stat");
 			if (activeItem.stats && stats.length > 0){
 				stats.html(
@@ -670,10 +728,18 @@ var app = new (function() {
 	this.toggleRefresh = function(){
 		self.toggleBootstrapMenu();
 		self.doRefresh(!self.doRefresh());
-	}	
-	this.toggleDestinyTooltips = function(){
+	}
+	this.toggleTransferStacks = function(){
 		self.toggleBootstrapMenu();
-		self.tooltipsEnabled(!self.tooltipsEnabled());		
+		self.autoTransferStacks(!self.autoTransferStacks());	
+	}
+	this.toggleDestinyDbMode = function(){
+		self.toggleBootstrapMenu();
+		self.destinyDbMode(!self.destinyDbMode());	
+	}
+	this.toggleDestinyDbTooltips = function(){
+		self.toggleBootstrapMenu();
+		self.tooltipsEnabled(!self.tooltipsEnabled());
 	}
 	this.toggleShareView = function(){
 		self.toggleBootstrapMenu();
@@ -749,9 +815,10 @@ var app = new (function() {
 				tierType: info.tierType, //6 (Exotic) 5 (Legendary)
 				icon: self.bungie.getUrl() + info.icon,
 				isEquipped: item.isEquipped,
-				isGridComplete: item.isGridComplete
+				isGridComplete: item.isGridComplete,
+				locked: item.locked
 			};
-			/*if ( itemObject.description.indexOf("Engram") > -1 ){
+			/*if ( itemObject.description.indexOf("Painted") > -1 ){
 				console.log(itemObject);
 				console.log(info);
 				console.log(itemObject.typeName + " " + info.classType);
@@ -768,31 +835,25 @@ var app = new (function() {
 			if (info.bucketTypeHash in DestinyBucketTypes){
 			
 				/* both weapon engrams and weapons fit under this condition*/
-				if (itemObject.bucketType in DestinyWeaponPieces){
-					/*console.log(itemObject);
-					console.log(info);
-					console.log(itemObject.typeName + " " + info.classType);*/
-					/* only actual weapons fit under this condition */
-					if ( info.itemType == 3 ){
-						itemObject.perks = item.perks.map(function(perk){
-							if (perk.perkHash in window._perkDefs){
-								var p = window._perkDefs[perk.perkHash];
-								return {
-									iconPath: app.bungie.getUrl() + perk.iconPath,
-									name: p.displayName,
-									description: p.displayDescription
-								}
+				if ( (DestinyWeaponPieces.indexOf(itemObject.bucketType) > -1 || DestinyArmorPieces.indexOf(itemObject.bucketType) > -1) && item.perks.length > 0 ){
+					itemObject.perks = item.perks.map(function(perk){
+						if (perk.perkHash in window._perkDefs){
+							var p = window._perkDefs[perk.perkHash];
+							return {
+								iconPath: app.bungie.getUrl() + perk.iconPath,
+								name: p.displayName,
+								description: p.displayDescription
 							}
-							else {
-								return perk;
-							}					
-						});
-						if (info.talentGridHash in window._talentGridDefs){					
-							itemObject.isUnique = info.tierType != 6 && (_.pluck(_.where(window._talentGridDefs[info.talentGridHash].nodes,{column:5}),'isRandom').indexOf(true) > -1);
 						}
 						else {
-							itemObject.isUnique = false;
-						}				
+							return perk;
+						}					
+					});
+					if (info.talentGridHash in window._talentGridDefs){					
+						itemObject.isUnique = info.tierType != 6 && (_.pluck(_.where(window._talentGridDefs[info.talentGridHash].nodes,{column:5}),'isRandom').indexOf(true) > -1);
+					}
+					else {
+						itemObject.isUnique = false;
 					}				
 				}
 			
@@ -813,7 +874,6 @@ var app = new (function() {
 				}
 				profile.items.push( new Item(itemObject,profile) );
 			}
-			
 		}
 	}
 	
@@ -856,6 +916,7 @@ var app = new (function() {
 				//console.log("finished loading");
 				self.shareUrl(new report().de());
 				self.loadingUser(false);
+				self.loadLoadouts();
 				setTimeout(self.bucketSizeHandler, 500);
 			}
 		}	
@@ -930,7 +991,7 @@ var app = new (function() {
 		});		
 	}
 	
-	this.loadData = function(ref, loop){
+	this.loadData = function(ref){
 		if (self.loadingUser() == false){
 			self.loadingUser(true);
 			self.bungie = new bungie(self.bungie_cookies); 
@@ -939,14 +1000,19 @@ var app = new (function() {
 				self.activeUser(new User(user));
 				if (user.error){
 					self.loadingUser(false);
+					if (ref && ref.close){
+						self.readBungieCookie(ref);
+					}
 					return
 				}
-				if (ref && loop){
+				if (ref && ref.close){
 					ref.close();
-					clearInterval(loop);
+					//fix for issue #3?
+					ref = null;
 				}
-				self.loadLoadouts();
-				self.search();
+				_.defer(function(){					
+					self.search();
+				});
 			});			
 		}
 	}
@@ -977,7 +1043,7 @@ var app = new (function() {
 	
 	this.bucketSizeHandler = function(){
 		var buckets = $(".profile:gt(0) .itemBucket").css("height", "auto");
-		var maxHeight = $(".itemImage:eq(0)").height() * 3;
+		var maxHeight = $(".itemImage:visible:eq(0)").height() * 3;
 		buckets.css("min-height", maxHeight);	
 	}
 	
@@ -1000,33 +1066,19 @@ var app = new (function() {
 	this.openBungieWindow = function(type){
 		return function(){
 			var loop;
-			//overwrite the same reference to avoid crashing?
-			window.ref = window.open('https://www.bungie.net/en/User/SignIn/' + type, '_blank', 'location=yes');			
+			window.ref = window.open('https://www.bungie.net/en/User/SignIn/' + type + "?bru=%252Fen%252FUser%252FProfile", '_blank', 'location=yes');			
 			if (isMobile){
 				ref.addEventListener('loadstop', function(event) {
-					clearInterval(loop);
 					ref.executeScript({
 						code: 'document.location.href'
 					}, function(result) {
-						/* only load cookie reader on homepage */		
-						if (result.toString() == self.bungie.getUrl()){
-							loop = setInterval(function() {
-								self.readBungieCookie(ref, loop);							
-							}, 500);
-						}
-					});
-					
-				});
-				ref.addEventListener('loadstart', function(event) {
-					clearInterval(loop);
+						self.readBungieCookie(ref, loop);
+					});					
 				});
 				ref.addEventListener('exit', function() {
 					if (self.loadingUser() == false){
-						clearInterval(loop);
 						if (_.isEmpty(self.bungie_cookies)){
-							loop = setInterval(function() {
-								self.readBungieCookie(ref, loop);
-							}, 500);
+							self.readBungieCookie(ref, loop);
 						}
 						else {
 							self.loadData();
@@ -1127,7 +1179,10 @@ var app = new (function() {
 		self.doRefresh.subscribe(self.refreshHandler);
 		self.refreshSeconds.subscribe(self.refreshHandler);
 		self.loadoutMode.subscribe(self.refreshHandler);		
-		self.bungie_cookies = window.localStorage.getItem("bungie_cookies");
+		self.bungie_cookies = "";
+		if (window.localStorage && window.localStorage.getItem){
+			self.bungie_cookies = window.localStorage.getItem("bungie_cookies");
+		}
 		var isEmptyCookie = (self.bungie_cookies || "").indexOf("bungled") == -1;
 		(function() {
 		  if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
@@ -1176,8 +1231,28 @@ var app = new (function() {
 }); 
 
 window.zam_tooltips = { addIcons: false, colorLinks: false, renameLinks: false, renderCallback: app.renderCallback, isEnabled: app.tooltipsEnabled() };
+BootstrapDialog.defaultOptions.nl2br = false;
 
 if (isMobile){
+	window.addEventListener("statusTap", function() {
+	    var target = $("body");
+	 
+	    //disable touch scroll to kill existing inertial movement
+	    target.css({
+	        '-webkit-overflow-scrolling' : 'auto',
+	        'overflow-y' : 'hidden'
+	    });
+	 
+	    //animate
+	    target.animate({ scrollTop: 0}, 300, "swing", function(){
+	 
+	        //re-enable touch scrolling
+	        target.css({
+	            '-webkit-overflow-scrolling' : 'touch',
+	            'overflow-y' : 'scroll'
+	        });
+	    });
+	});
 	document.addEventListener('deviceready', app.init, false);
 } else {
 	$(document).ready(app.init);
