@@ -490,7 +490,8 @@ window.ko.bindingHandlers.scrollToView = {
 		Hammer(element, { time: 2000 })
 			.on("tap", function(){
 				var index = $(".profile#" + viewModel.id).index(".profile");
-				$("body").animate({ scrollTop: $(".profile:eq(" + index + ")").position().top - 50 }, 300, "swing")
+				console.log(index);
+				$("body").css({ scrollTop: $(".profile:eq(" + index + ")").position().top - 50 });
 			})
 			.on("press",function(){
 				
