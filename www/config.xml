@@ -2,7 +2,7 @@
 <widget id="com.richardpinedo.destinyitemviewer" version="1.8.9" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Destiny Item Viewer</name>
     <description>
-		Formerly known as DIV. This app allows you to transfer items between profiles, with various filters.
+		This app allows you to transfer items between profiles, with various filters.
     </description>
     <author email="dasilva333@github.com" href="https://github.com/dasilva333/DIM/">
         Richard Pinedo
