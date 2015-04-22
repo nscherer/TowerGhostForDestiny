@@ -52,6 +52,7 @@ var Profile = function(model){
 	this.armor = ko.computed(this._armor, this);
 	this.general = ko.computed(this._general, this);
 	this.postmaster = ko.computed(this._postmaster, this);
+	this.container = ko.observable();
 }
 
 Profile.prototype = {
@@ -484,6 +485,21 @@ var moveItemPositionHandler = function(element, item){
 	}
 }
 
+window.ko.bindingHandlers.scrollToView = {
+	init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+		Hammer(element, { time: 2000 })
+			.on("tap", function(){
+				var index = $(".profile#" + viewModel.id).index(".profile");
+				$("body").animate({ scrollTop: $(".profile:eq(" + index + ")").position().top - 50 }, 300, "swing")
+			})
+			.on("press",function(){
+				
+				BootstrapDialog.alert("This icon is " + viewModel.uniqueName);
+			});
+		app.quickIconHighlighter();
+	}
+};
+
 window.ko.bindingHandlers.fastclick = {
 	init: function(element, valueAccessor) {
 		FastClick.attach(element);
@@ -492,17 +508,19 @@ window.ko.bindingHandlers.fastclick = {
 };
 
 ko.bindingHandlers.moveItem = {
-    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-	
-		Hammer(element, { time: 5000 })
+    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {	
+		Hammer(element, { time: 2000 })
 			.on("tap", moveItemPositionHandler(element, viewModel))
+			/* press is actually hold */
 			.on("press",function(){
-				viewModel.markAsEquip( viewModel );
+				if (app.loadoutMode() == true){
+					viewModel.markAsEquip( viewModel );
+				}
+				else {
+					$ZamTooltips.lastElement = element;
+					$ZamTooltips.show("destinydb","items",viewModel.id, element);
+				}
 			})
-			.on("doubletap", function() {
-				$ZamTooltips.lastElement = element;
-				$ZamTooltips.show("destinydb","items",viewModel.id, element);
-			});
     }
 };
 
@@ -633,8 +651,7 @@ var app = new (function() {
 		return self.characters().sort(function(a,b){
 			return a.order - b.order;
 		});
-	});		
-	
+	});
 	this.createLoadout = function(){
 		self.loadoutMode(true);		
 		self.activeLoadout(new Loadout());
@@ -1043,8 +1060,20 @@ var app = new (function() {
 	
 	this.bucketSizeHandler = function(){
 		var buckets = $(".profile:gt(0) .itemBucket").css("height", "auto");
+		//TODO: max height should include padding and borders
 		var maxHeight = $(".itemImage:visible:eq(0)").height() * 3;
 		buckets.css("min-height", maxHeight);	
+	}
+	
+	this.quickIconHighlighter = function(){
+		var scrollTop = $(window).scrollTop();
+		$(".profile").each(function(index, item){
+		   var $item = $(item);
+		   var $quickIcon = $(".quickScrollView ." + $item.attr('id'));
+		   var top =  $item.position().top - 55;
+		   var bottom = top + $item.height();
+		   $quickIcon.css("border", (scrollTop >= top && scrollTop <= bottom) ? "3px solid white" : "none");
+		});
 	}
 	
 	this.donate = function(){
@@ -1205,7 +1234,7 @@ var app = new (function() {
 				StatusBar.overlaysWebView(false);
 		    }
 			if (typeof StatusBar !== "undefined"){		
-			    StatusBar.styleLightContent();
+			    StatusBar.styleBlackOpaque();
 			    StatusBar.backgroundColorByHexString("#000");
 			}
 		}
@@ -1225,7 +1254,8 @@ var app = new (function() {
 		});
 		/* this fixes issue #16 */
 		$(window).resize(_.throttle(self.bucketSizeHandler, 500));
-		
+		$(window).resize(_.throttle(self.quickIconHighlighter, 500));
+		$(window).scroll(_.throttle(self.quickIconHighlighter, 500));
 		ko.applyBindings(self);
 	}
 }); 
