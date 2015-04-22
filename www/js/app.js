@@ -496,7 +496,7 @@ window.ko.bindingHandlers.scrollToView = {
 					$('html,body').scrollTop(distance);
 				}
 				else {
-					$("body").css({ scrollTop: distance }, 300, "swing")
+					$("body").animate({ scrollTop: distance }, 300, "swing")
 				}				
 			})
 			.on("press",function(){
