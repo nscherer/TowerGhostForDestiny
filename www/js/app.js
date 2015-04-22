@@ -491,12 +491,12 @@ window.ko.bindingHandlers.scrollToView = {
 		Hammer(element, { time: 2000 })
 			.on("tap", function(){
 				var index = $(".profile#" + viewModel.id).index(".profile"),
-					distance = $(".profile:eq(" + index + ")").position().top - 50 };
+					distance = $(".profile:eq(" + index + ")").position().top - 50;
 				if ( isWindowsPhone ){
 					$('html,body').scrollTop(distance);
 				}
 				else {
-					$("body").css({ scrollTop: distance, 300, "swing")
+					$("body").css({ scrollTop: distance }, 300, "swing")
 				}				
 			})
 			.on("press",function(){
