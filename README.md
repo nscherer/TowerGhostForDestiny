@@ -77,5 +77,3 @@ https://github.com/dasilva333/TowerGhostForDestiny/tree/div-movile-dist/
 -    Find the button that says "Install addon from file"
 -    Point it to the tower_ghost.xpi (found in Downloads section) file
 
-##Project Powered By
-<img src="http://towerghostfordestiny.com/browserstack.png">

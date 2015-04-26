@@ -12,6 +12,7 @@
 	<script language="JavaScript" type="text/javascript" src="data/talentGridDefs.js"></script>
 	<script language="JavaScript" type="text/javascript" src="data/raceDefs.js"></script>
 	<script language="JavaScript" type="text/javascript" src="data/destinyDefs.js"></script>
+	<script language="JavaScript" type="text/javascript" src="data/progressionDefs.js"></script>
 	<script language="JavaScript" type="text/javascript" src="scripts/lzstring.min.js"></script>
 	<script language="JavaScript" type="text/javascript" src="js/dependencies/hammer.js"></script>
     <script language="JavaScript" type="text/javascript" src="js/dependencies/jquery.js"></script>
@@ -33,9 +34,14 @@
 	  	<script type="text/html" id="items-template">
 			<div class="lockIcon" data-bind="visible: locked"><img src="assets/lock.png"></div>
 			<a data-bind="attr:{href:item.href, instanceId:item._id}">
-				<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id, title: item.description }, click: setActiveItem, moveItem: true">
+				<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, click: setActiveItem, moveItem: true">
 			</a>
-			<div class="attkIcon"><div data-bind="text: primaryStat, style: { backgroundColor: DestinyDamageTypeColors[damageTypeName] }"></div></div>    
+			<div class="attkIcon">
+				<div data-bind="text: primaryStat, style: { backgroundColor: DestinyDamageTypeColors[damageTypeName] }"></div>
+			</div>    
+			<!-- ko if: !(item.remainingProgress===undefined)  -->
+			<div class="icon-banner" data-bind="text: (100 - remainingProgress) + '%', visible: remainingProgress >= 0 && remainingProgress != 100, style: { width: (100 - remainingProgress) + '%' }"></div>
+			<!--/ko -->
 	    </script>
 		<script type="text/html" id="sections-template">
 			<!-- ko if: character.id !== 'Vault' || (character.id == 'Vault' && bucketType !== 'Post Master') -->
@@ -82,7 +88,7 @@
 		        <span class="icon-bar"></span>
 		        <span class="icon-bar"></span>
 		      </button>
-		      <a class="navbar-brand" href="#">TGD 2.1.2</a>
+		      <a class="navbar-brand" href="#">TGD 2.1.0</a>
 			  <div class="quickScrollView" data-bind="foreach: { data: $root.orderedCharacters, as: 'avatar' }">
 				<div style="display:inline-block;">
 					<img data-bind="attr: { src : imgIcon, title: uniqueName, class: id }, scrollToView: false" style="width:35px; height:35px">
@@ -111,7 +117,6 @@
 						<li data-bind="fastclick: toggleDestinyDbTooltips, css: tooltipsEnabled() == true ? 'active' : ''"><a href="#">DestinyDB Tooltips</a></li>
 						<li data-bind="fastclick: toggleDestinyDbMode, css: destinyDbMode() == true ? 'active' : ''"><a href="#">DestinyDB Mode</a></li>
 						<li data-bind="fastclick: toggleTransferStacks, css: autoTransferStacks() == true ? 'active' : ''"><a href="#">Auto Transfer Stacks</a></li>
-						<li data-bind="fastclick: togglePadBucketHeight, css: padBucketHeight() == true ? 'active' : ''"><a href="#">Auto Pad Height</a></li>						
 		          </ul>
 		        </li>
 				<li class="dropdown"><a data-bind="fastclick: refreshButton" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><img src="assets/arrow_refresh.png"></a>
@@ -323,7 +328,7 @@
 				</div>
 				<span id="loadout-contents" data-bind="foreach: { data: items, as: 'item' }">
 					<span class="item" data-bind="css: isMobile && doEquip() ? 'doEquip' : ''">
-						<input type="checkbox" data-bind="checked: doEquip, click: markAsEquip, visible: !isMobile" title="Enable to mark as the equip item">
+						<input type="checkbox" value="true" data-bind="checked: doEquip, click: markAsEquip, visible: !isMobile" title="Enable to mark as the equip item">
 						<span data-bind="template: { name: 'items-template', data: item }"></span>
 					</span>					
 				</span>
