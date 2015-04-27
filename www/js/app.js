@@ -3,6 +3,19 @@ window.isMobile = (/ios|iphone|ipod|ipad|android|iemobile/i.test(navigator.userA
 window.isWindowsPhone = (/iemobile/i.test(navigator.userAgent));
 window.supportsCloudSaves = window.isChrome || window.isMobile;
 
+if(!console){var console = {};} // for those without a console - mind the context
+console.timers = {};
+console.time = function(timer)
+{
+    if(!timer){timer="Timer";}
+    console.timers[timer] = new Date().getTime();
+};
+console.timeEnd = function(timer)
+{
+    if(!timer){timer="Timer";}
+    console.log(timer+": "+(new Date().getTime()-console.timers[timer]));
+};
+
 var dialog = (function(options){
 	var self = this;
 
@@ -970,9 +983,9 @@ var app = new (function() {
 			//profiles.push(profile);
 			count++;
 			if (count == total){
-				console.time("finished loading");
+				//console.time("finished loading");
 				//self.characters(profiles);
-				console.timeEnd("finished loading");
+				//console.timeEnd("finished loading");
 				console.time("other Stuff");
 				self.shareUrl(new report().de());
 				self.loadingUser(false);
