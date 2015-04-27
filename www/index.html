@@ -32,7 +32,7 @@
 
   <body>
 	  	<script type="text/html" id="items-template">
-			<a data-bind="attr:{href:item.href, instanceId:item._id}">
+			<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
 				<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, click: preventDefault">
 			</a>
 			<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>
