@@ -976,7 +976,7 @@ var app = new (function() {
 				console.timeEnd("self.bungie.vault");
 				done(profile)
 			});
-			console.time("avatars.forEach");
+			console.time("avatars.forEach");			
 			avatars.forEach(function(character, index){
 				self.bungie.inventory(character.characterBase.characterId, function(response) {
 					console.time("new Profile"); 					

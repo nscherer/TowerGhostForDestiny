@@ -33,7 +33,7 @@
   <body>
 	  	<script type="text/html" id="items-template">
 			<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
-				<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, click: preventDefault">
+				<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, fastclick: preventDefault">
 			</a>
 			<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>
 	    </script>
@@ -117,47 +117,47 @@
 				<li class="dropdown">
 		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">View <span class="caret"></span></a>
 		          <ul class="dropdown-menu" role="menu">
-				    <li data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', click: setView" value="0"><a href="#">All</a></li>
-		            <li data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', click: setView" value="1"><a href="#">Weapons</a></li>
-					<li data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', click: setView" value="2"><a href="#">Armor</a></li>
-		            <li data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', click: setView" value="3"><a href="#">General</a></li>
+				    <li data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', fastclick: setView" value="0"><a href="#">All</a></li>
+		            <li data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', fastclick: setView" value="1"><a href="#">Weapons</a></li>
+					<li data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', fastclick: setView" value="2"><a href="#">Armor</a></li>
+		            <li data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', fastclick: setView" value="3"><a href="#">General</a></li>
 		          </ul>
 		        </li>
 		        <li class="dropdown">
 		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Tier <span class="caret"></span></a>
 		          <ul class="dropdown-menu" role="menu">
-		            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', click: setTierFilter" value="0"><a href="#">All</a></li>
-					<li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', click: setTierFilter" value="2"><a href="#">Common</a></li>
-		            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', click: setTierFilter" value="3"><a href="#">Uncommon</a></li>
-		            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', click: setTierFilter" value="4"><a href="#">Rare</a></li>
-					<li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', click: setTierFilter" value="5"><a href="#">Legendary</a></li>
-					<li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', click: setTierFilter" value="6"><a href="#">Exotic</a></li>
+		            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="0"><a href="#">All</a></li>
+					<li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="2"><a href="#">Common</a></li>
+		            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="3"><a href="#">Uncommon</a></li>
+		            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="4"><a href="#">Rare</a></li>
+					<li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="5"><a href="#">Legendary</a></li>
+					<li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="6"><a href="#">Exotic</a></li>
 		          </ul>
 		        </li>
 				<li class="dropdown">
 		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Set <span class="caret"></span></a>
 		          <ul class="dropdown-menu" role="menu">
-				  	<li data-bind="css: setFilter().length == 0 ? 'active' : '', click: setSetFilter" value="All"><a href="#">All</a></li>
-		            <li data-bind="css: setFilter() == _collections.crotaWeapons ? 'active' : '', click: setSetFilter" value="crotaWeapons"><a href="#">Crota's End Weapons</a></li>
-					<li data-bind="css: setFilter() == _collections.crotaArmor ? 'active' : '', click: setSetFilter" value="crotaArmor"><a href="#">Crota's End Armor</a></li>
-					<li data-bind="css: setFilter() == _collections.vaultWeapons ? 'active' : '', click: setSetFilter" value="vaultWeapons"><a href="#">VOG Weapons</a></li>
-					<li data-bind="css: setFilter() == _collections.vaultArmor ? 'active' : '', click: setSetFilter" value="vaultArmor"><a href="#">VOG Armor</a></li>
-					<li data-bind="css: setFilter() == _collections.ironWeapons ? 'active' : '', click: setSetFilter" value="ironWeapons"><a href="#">Iron Banner Weapons</a></li>
-					<li data-bind="css: setFilter() == _collections.ironArmor ? 'active' : '', click: setSetFilter" value="ironArmor"><a href="#">Iron Banner Armor</a></li>
-					<li data-bind="css: setFilter() == _collections.exoticWeapons ? 'active' : '', click: setSetFilter" value="exoticWeapons"><a href="#">Exotic Weapons</a></li>
-					<li data-bind="css: setFilter() == _collections.exoticArmor ? 'active' : '', click: setSetFilter" value="exoticArmor"><a href="#">Exotic Armor</a></li>
+				  	<li data-bind="css: setFilter().length == 0 ? 'active' : '', fastclick: setSetFilter" value="All"><a href="#">All</a></li>
+		            <li data-bind="css: setFilter() == _collections.crotaWeapons ? 'active' : '', fastclick: setSetFilter" value="crotaWeapons"><a href="#">Crota's End Weapons</a></li>
+					<li data-bind="css: setFilter() == _collections.crotaArmor ? 'active' : '', fastclick: setSetFilter" value="crotaArmor"><a href="#">Crota's End Armor</a></li>
+					<li data-bind="css: setFilter() == _collections.vaultWeapons ? 'active' : '', fastclick: setSetFilter" value="vaultWeapons"><a href="#">VOG Weapons</a></li>
+					<li data-bind="css: setFilter() == _collections.vaultArmor ? 'active' : '', fastclick: setSetFilter" value="vaultArmor"><a href="#">VOG Armor</a></li>
+					<li data-bind="css: setFilter() == _collections.ironWeapons ? 'active' : '', fastclick: setSetFilter" value="ironWeapons"><a href="#">Iron Banner Weapons</a></li>
+					<li data-bind="css: setFilter() == _collections.ironArmor ? 'active' : '', fastclick: setSetFilter" value="ironArmor"><a href="#">Iron Banner Armor</a></li>
+					<li data-bind="css: setFilter() == _collections.exoticWeapons ? 'active' : '', fastclick: setSetFilter" value="exoticWeapons"><a href="#">Exotic Weapons</a></li>
+					<li data-bind="css: setFilter() == _collections.exoticArmor ? 'active' : '', fastclick: setSetFilter" value="exoticArmor"><a href="#">Exotic Armor</a></li>
 					<li class="divider"></li>
-					<li data-bind="css: showMissing() ? 'active' : '', click: toggleShowMissing"><a href="#">Show Missing Items</a></li>
-					<li data-bind="css: showUniques() ? 'active' : '', click: toggleShowUniques"><a href="#">Show only unique tems</a></li>
+					<li data-bind="css: showMissing() ? 'active' : '', fastclick: toggleShowMissing"><a href="#">Show Missing Items</a></li>
+					<li data-bind="css: showUniques() ? 'active' : '', fastclick: toggleShowUniques"><a href="#">Show only unique tems</a></li>
 		          </ul>
 		        </li>
 				<li class="dropdown">
 		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Progress <span class="caret"></span></a>
 		          <ul class="dropdown-menu" role="menu">
-		            <li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', click: setProgressFilter" value="0"><a href="#">All</a></li>
-					<li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', click: setProgressFilter" value="1"><a href="#">Missing XP</a></li>
-		            <li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', click: setProgressFilter" value="2"><a href="#">Full XP</a></li>
-		            <li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', click: setProgressFilter" value="3"><a href="#">Maxed</a></li>
+		            <li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', fastclick: setProgressFilter" value="0"><a href="#">All</a></li>
+					<li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', fastclick: setProgressFilter" value="1"><a href="#">Missing XP</a></li>
+		            <li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', fastclick: setProgressFilter" value="2"><a href="#">Full XP</a></li>
+		            <li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', fastclick: setProgressFilter" value="3"><a href="#">Maxed</a></li>
 		          </ul>
 		        </li>
 				<li class="dropdown">
@@ -174,18 +174,18 @@
 				<li class="dropdown">
 		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Damage <span class="caret"></span></a>
 		          <ul class="dropdown-menu" role="menu">
-					<li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', click: setDmgFilter" value="Kinetic"><a href="#"><img src="assets/kinetic.png" class="icon">Kinetic (None)</a></li>
-					<li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', click: setDmgFilter" value="Solar"><a href="#"><img src="assets/solar.png" class="icon">Solar</a></li>
-					<li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', click: setDmgFilter" value="Arc"><a href="#"><img src="assets/arc.png" class="icon">Arc</a></li>
-					<li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', click: setDmgFilter" value="Void"><a href="#"><img src="assets/void.png" class="icon">Void</a></li>
+					<li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', fastclick: setDmgFilter" value="Kinetic"><a href="#"><img src="assets/kinetic.png" class="icon">Kinetic (None)</a></li>
+					<li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', fastclick: setDmgFilter" value="Solar"><a href="#"><img src="assets/solar.png" class="icon">Solar</a></li>
+					<li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', fastclick: setDmgFilter" value="Arc"><a href="#"><img src="assets/arc.png" class="icon">Arc</a></li>
+					<li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', fastclick: setDmgFilter" value="Void"><a href="#"><img src="assets/void.png" class="icon">Void</a></li>
 		          </ul>
 		        </li>
 				<li class="dropdown">
 		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Weapon <span class="caret"></span></a>
 		          <ul class="dropdown-menu" role="menu">
-					<li data-bind="css: typeFilter() == $($element).attr('value') ? 'active' : '', click: setTypeFilter" value="0"><a href="#">All</a></li>
+					<li data-bind="css: typeFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTypeFilter" value="0"><a href="#">All</a></li>
 		  			<!-- ko foreach: { data: weaponTypes, as: 'weaponType' } -->
-						<li data-bind="css: $parent.typeFilter() == weaponType.type ? 'active' : '', click: $parent.setTypeFilter, value: weaponType.type" value="0"><a data-bind="text: weaponType.name" href="#">All</a></li>
+						<li data-bind="css: $parent.typeFilter() == weaponType.type ? 'active' : '', fastclick: $parent.setTypeFilter, value: weaponType.type" value="0"><a data-bind="text: weaponType.name" href="#">All</a></li>
 		  			<!--/ko  -->
 		          </ul>
 		        </li>
@@ -203,7 +203,7 @@
 		<div class="alert alert-success" data-bind="visible: showMissing" style="display:none; ">
 			<strong class="col-xs-12 col-md-12 col-md-1 col-lg-1">Missing Items</strong>
 			<span data-bind="foreach: { data: missingSets }">
-				<a data-bind="attr:{ href: 'https://destinydb.com/items/' + $data }, click: function(){ return false }"><img data-bind="attr:{src: _itemDefs[ $data ] && ($root.bungie.getUrl() +_itemDefs[ $data ].icon), title: _itemDefs[ $data ] && _itemDefs[ $data ].name }" width="48"></a>
+				<a data-bind="attr:{ href: 'https://destinydb.com/items/' + $data }, fastclick: function(){ return false }"><img data-bind="attr:{src: _itemDefs[ $data ] && ($root.bungie.getUrl() +_itemDefs[ $data ].icon), title: _itemDefs[ $data ] && _itemDefs[ $data ].name }" width="48"></a>
 			</span>
 		</div>
 		<div data-bind="with: $root.activeUser()" style="">
@@ -229,15 +229,15 @@
 				  	Move: <span data-bind="text: description"></span>
 				  </div>
 				  <div class="locations col-xs-12 col-sm-12 col-md-10 col-md-offset-1 col-lg-9 col-lg-offset-2" data-bind="foreach: { data: $root.orderedCharacters, as: 'avatar' }">
-					<div class="move-button col-xs-2 col-sm-2 col-md-2 col-lg-2" data-bind="attr: { title: avatar.uniqueName }, click: function(){ $parent.store(avatar.id) }, visible: avatar.id == 'Vault' && $parent.character.id !== 'Vault' && $parent.bucketType !== 'Subclasses'">
+					<div class="move-button col-xs-2 col-sm-2 col-md-2 col-lg-2" data-bind="attr: { title: avatar.uniqueName }, fastclick: function(){ $parent.store(avatar.id) }, visible: avatar.id == 'Vault' && $parent.character.id !== 'Vault' && $parent.bucketType !== 'Subclasses'">
 						<img data-bind="attr: { src : imgIcon }">
 						<div class="attkIcon"><div>vault</div></div>
 					</div>
-					<div class="move-button col-xs-2 col-sm-2 col-md-2 col-lg-2" data-bind="attr: { title: avatar.uniqueName }, click: function(){ $parent.store(avatar.id) }, visible: $parent.isStoreable(avatar.id)">
+					<div class="move-button col-xs-2 col-sm-2 col-md-2 col-lg-2" data-bind="attr: { title: avatar.uniqueName }, fastclick: function(){ $parent.store(avatar.id) }, visible: $parent.isStoreable(avatar.id)">
 						<img data-bind="attr: { src : imgIcon }">
 						<div class="attkIcon"><div>store</div></div>
 					</div>
-					<div class="move-button col-xs-2 col-sm-2 col-md-2 col-lg-2" data-bind="attr: { title: avatar.uniqueName }, click: function(){ $parent.equip(avatar.id) }, visible: $parent.isEquippable(avatar.id)">
+					<div class="move-button col-xs-2 col-sm-2 col-md-2 col-lg-2" data-bind="attr: { title: avatar.uniqueName }, fastclick: function(){ $parent.equip(avatar.id) }, visible: $parent.isEquippable(avatar.id)">
 						<img data-bind="attr: { src : imgIcon }">
 						<div class="attkIcon"><div>equip</div></div>
 					</div>
@@ -304,13 +304,13 @@
 					<span id="loadout-save" data-bind="fastclick: remove">Delete</span>
 					<span id="loadout-save" data-bind="fastclick: $root.cancelLoadout">Close</span>
 					<!-- ko foreach: { data: $root.orderedCharacters, as: 'character' } -->
-						<div class="move-button move-loadout" data-bind="attr: { title: uniqueName }, click: function(){ $parent.transfer(character.id) }, style: { backgroundImage: icon }, text: classType"></div>
+						<div class="move-button move-loadout" data-bind="attr: { title: uniqueName }, fastclick: function(){ $parent.transfer(character.id) }, style: { backgroundImage: icon }, text: classType"></div>
 		  			<!--/ko  -->
 					<p id="loadout-error" class="label label-danger" data-bind="visible: items().length == 0">No items in loadout, click items to add, <span data-bind="text: isMobile ? 'hold':'check'"></span> to equip.</p>
 				</div>
 				<span id="loadout-contents" data-bind="foreach: { data: items, as: 'item' }">
 					<span class="item" data-bind="css: isMobile && doEquip() ? 'doEquip' : ''">
-						<input type="checkbox" value="true" data-bind="checked: doEquip, click: markAsEquip, visible: !isMobile" title="Enable to mark as the equip item">
+						<input type="checkbox" value="true" data-bind="checked: doEquip, fastclick: markAsEquip, visible: !isMobile" title="Enable to mark as the equip item">
 						<span data-bind="template: { name: 'items-template', data: item }"></span>
 					</span>					
 				</span>
