@@ -46,7 +46,7 @@
 						<div data-bind="foreach: { data: character.get(bucketType), as: 'item' }">
 							<span class="bucket-item" data-bind="css: ((character.id == 'Vault' || bucketType == 'Post Master'  || bucketType == 'Consumables' || bucketType == 'Materials') ? 'col-xs-3 col-sm-3 col-md-3 col-lg-3' : 'col-xs-4 col-sm-4 col-md-4 col-lg-4') + (isGridComplete ? ' complete' : ''), visible: isVisible">
 								<a data-bind="attr:{href:item.href, instanceId:item._id}">
-									<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }">
+									<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, click: setActiveItem, moveItem: true">
 								</a>
 							</span>
 						</div>
@@ -54,7 +54,7 @@
 					<div style="padding-left: 4px;" class="bucket-item col-xs-3 col-sm-3 col-md-3 col-lg-3" data-bind="visible: character.id != 'Vault', with: character.itemEquipped(bucketType)">
 						<span class="col-xs-12 col-sm-12 col-md-12 col-lg-12" data-bind="css: isGridComplete ? 'complete' : '', visible: isVisible">
 							<a data-bind="attr:{href:item.href, instanceId:item._id}">
-								<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }">
+								<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, click: setActiveItem, moveItem: true">
 							</a>
 						</span>
 					</div>					
