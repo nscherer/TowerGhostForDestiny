@@ -98,9 +98,6 @@ var Item = function(model, profile){
 	this.character = profile;
 	this.href = "https://destinydb.com/items/" + self.id;
 	this.isEquipped = ko.observable(self.isEquipped);
-	this.setActiveItem = function(){
-		app.activeItem(self);
-	}
 	this.primaryStat = self.primaryStat || "";
 	this.isVisible = ko.computed(this._isVisible, this);
 	this.isEquippable = function(avatarId){
@@ -665,6 +662,12 @@ var app = new (function() {
 			return a.order - b.order;
 		});
 	});
+	
+	this.setActiveItem = function(item, event){
+		self.activeItem(item);
+		moveItemPositionHandler(event.target, item)();
+	}
+	
 	this.createLoadout = function(){
 		self.loadoutMode(true);
 		self.activeLoadout(new Loadout());
