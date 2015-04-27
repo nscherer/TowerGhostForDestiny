@@ -32,30 +32,47 @@
 
   <body>
 	  	<script type="text/html" id="items-template">
-
+			<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
+				<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, fastclick: preventDefault">
+			</a>
+			<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>
 	    </script>
 		<script type="text/html" id="sections-template">
 			<!-- ko if: character.id !== 'Vault' || (character.id == 'Vault' && bucketType !== 'Post Master') -->
 				<div class="title" data-bind="visible: bucketType !== 'Subclasses'">
 					<span data-bind="text: bucketType"></span>
+					<span data-bind="visible: character.id !== 'Vault'">
+						<!-- ko if: !(bucketType == 'Materials' || bucketType == 'Consumables' || bucketType == 'Post Master') -->
+							(<span data-bind="text: character.get(bucketType).length+1"></span>/10)
+						<!--/ko  -->
+						<!-- ko if: (bucketType == 'Materials' || bucketType == 'Consumables') -->
+							(<span data-bind="text: character.get(bucketType).length"></span>/15)
+						<!--/ko  -->
+						<!-- ko if: ( bucketType == 'Post Master' ) -->
+							(<span data-bind="text: character.get(bucketType).length"></span>/20)
+						<!--/ko  -->
+					</span>
+					<span data-bind="visible: character.id == 'Vault'">
+						(<span data-bind="text: character.get(bucketType).length"></span>/<span data-bind="text: DestinyWeaponPieces.indexOf(bucketType) > -1 ? 36 : 24"></span>)
+					</span>
 				</div>
 				<div class="row no-gutter" style="margin:auto;" data-bind="moveItem: true">
 					<div class="itemBucket" data-bind="css: ((character.id == 'Vault' || bucketType == 'Post Master' || bucketType == 'Consumables' || bucketType == 'Materials') ? 'col-xs-12 col-sm-12 col-md-12 col-lg-12' : 'col-xs-9 col-sm-9 col-md-9 col-lg-9') + ' ' + bucketType">
 						<div data-bind="foreach: { data: character.get(bucketType), as: 'item' }">
 							<span class="bucket-item" data-bind="css: ((character.id == 'Vault' || bucketType == 'Post Master'  || bucketType == 'Consumables' || bucketType == 'Materials') ? 'col-xs-3 col-sm-3 col-md-3 col-lg-3' : 'col-xs-4 col-sm-4 col-md-4 col-lg-4') + (isGridComplete ? ' complete' : ''), visible: isVisible">
-			<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
-				<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, fastclick: preventDefault">
-			</a>
-			<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>
+								<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
+									<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, fastclick: preventDefault">
+								</a>
+								<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>
 							</span>
 						</div>
 					</div>
 					<div style="padding-left: 4px;" class="bucket-item col-xs-3 col-sm-3 col-md-3 col-lg-3" data-bind="visible: character.id != 'Vault', with: character.itemEquipped(bucketType)">
 						<span class="col-xs-12 col-sm-12 col-md-12 col-lg-12" data-bind="css: isGridComplete ? 'complete' : '', visible: isVisible">
-			<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
-				<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, fastclick: preventDefault">
-			</a>
-			<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>
+							<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
+								<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, fastclick: preventDefault">
+							</a>
+							<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>
 						</span>
 					</div>					
 				</div>
