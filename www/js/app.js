@@ -163,7 +163,6 @@ Item.prototype = {
 		var tierFilter = $parent.tierFilter() == 0 || $parent.tierFilter() == self.tierType;
 		var progressFilter = $parent.progressFilter() == 0 || self.hashProgress($parent.progressFilter());
 		var typeFilter = $parent.typeFilter() == 0 || $parent.typeFilter() == self.type;
-		var uniqueFilter = $parent.showUniques() == false || ($parent.showUniques() == true && self.isUnique);
 		/*console.log( "searchFilter: " + searchFilter);
 		console.log( "dmgFilter: " + dmgFilter);
 		console.log( "setFilter: " + setFilter);
@@ -593,7 +592,6 @@ var app = new (function() {
 		shareView: false,
 		shareUrl: "",
 		showMissing: false,
-		showUniques: false,
 		tooltipsEnabled: isMobile ? false : true,
 		autoTransferStacks: false,
 		padBucketHeight: false
@@ -645,7 +643,6 @@ var app = new (function() {
 	this.shareView =  ko.observable(defaults.shareView);
 	this.shareUrl  = ko.observable(defaults.shareUrl);
 	this.showMissing =  ko.observable(defaults.showMissing);
-	this.showUniques =  ko.observable(defaults.showUniques);
 
 	this.activeItem = ko.observable();
 	this.activeUser = ko.observable(new User());
@@ -689,7 +686,6 @@ var app = new (function() {
 		self.shareView(defaults.shareView);
 		self.shareUrl (defaults.shareUrl);
 		self.showMissing(defaults.showMissing);
-		self.showUniques(defaults.showUniques);
 		$(element.target).removeClass("active");
 		return false;
 	}
@@ -772,10 +768,6 @@ var app = new (function() {
 	this.toggleShareView = function(){
 		self.toggleBootstrapMenu();
 		self.shareView(!self.shareView());
-	}
-	this.toggleShowUniques = function(){
-		self.toggleBootstrapMenu();
-		self.showUniques(!self.showUniques());
 	}
 	this.toggleShowMissing = function(){
 		self.toggleBootstrapMenu();
@@ -874,12 +866,6 @@ var app = new (function() {
 							return perk;
 						}
 					});
-					/*if (info.talentGridHash in window._talentGridDefs){
-						itemObject.isUnique = info.tierType != 6 && (_.pluck(_.where(window._talentGridDefs[info.talentGridHash].nodes,{column:5}),'isRandom').indexOf(true) > -1);
-					}
-					else {
-						itemObject.isUnique = false;
-					}*/
 					itemObject.isUnique = false;
 				}
 
