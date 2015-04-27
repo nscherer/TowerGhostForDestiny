@@ -514,6 +514,19 @@ window.ko.bindingHandlers.fastclick = {
 	}
 };
 
+getEventDelegate = function (target, selector) {
+ var delegate;
+ while (target && target != this.el) {
+	delegate = $(target).filter(selector)[0];
+	if (delegate) {
+	   return delegate;
+	}
+	target = target.parentNode;
+ }
+ return undefined;
+}
+
+
 ko.bindingHandlers.moveItem = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
 		Hammer(element, { time: 2000 })		
