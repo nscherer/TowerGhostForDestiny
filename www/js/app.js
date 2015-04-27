@@ -940,16 +940,21 @@ var app = new (function() {
 	}
 
 	this.search = function(){
-		var total = 0, count = 0;
+		var total = 0, count = 0, profiles = [];
 		/* TODO: implement a better loading bar by using the counts and this: #loadingBar */
-		function done(){
+		function done(profile){			
+			profiles.push(profile);
 			count++;
 			if (count == total){
-				//console.log("finished loading");
+				console.time("finished loading");
+				self.characters(profiles);
+				console.timeEnd("finished loading");
+				console.time("other Stuff");
 				self.shareUrl(new report().de());
 				self.loadingUser(false);
 				self.loadLoadouts();
 				setTimeout(self.bucketSizeHandler, 500);
+				console.timeEnd("other Stuff");
 				console.timeEnd("avatars.forEach"); 
 			}
 		}
@@ -989,7 +994,7 @@ var app = new (function() {
 				self.addWeaponTypes(profile.weapons());
 				self.characters.push(profile);
 				console.timeEnd("self.bungie.vault");
-				done()
+				done(profile)
 			});
 			console.time("avatars.forEach");
 			avatars.forEach(function(character, index){
@@ -1020,11 +1025,10 @@ var app = new (function() {
 					//items.push({"itemHash":2344494718,"bindStatus":0,"isEquipped":false,"itemInstanceId":"6917529046313340492","itemLevel":22,"stackSize":1,"qualityLevel":70});
 					console.time("processItems");
 					items.forEach(processItem(profile));					
-					console.timeEnd("processItems");					
-					self.addWeaponTypes(profile.items());
-					self.characters.push(profile);
+					console.timeEnd("processItems");
+					self.addWeaponTypes(profile.items());					
 					console.timeEnd("new Profile");
-					done();
+					done(profile);
 				});
 			});
 		});
