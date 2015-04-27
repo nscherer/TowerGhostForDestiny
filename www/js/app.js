@@ -95,8 +95,8 @@ var Item = function(model, profile){
 	_.each(model, function(value, key){
 		self[key] = value;
 	});
-	this.setActiveItem = function(){
-		app.activeItem(self);
+	this.preventDefault = function(){
+		return false;
 	}
 	this.character = profile;
 	this.href = "https://destinydb.com/items/" + self.id;
