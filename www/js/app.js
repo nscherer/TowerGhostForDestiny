@@ -834,9 +834,9 @@ var app = new (function() {
 					locked: item.locked,
 					description: info.itemName,
 					bucketType: (item.location == 4) ? "Post Master" : DestinyBucketTypes[info.bucketTypeHash],
-					type: info.itemSubType, //12 (Sniper)
-					typeName: info.itemTypeName, //Sniper Rifle
-					tierType: info.tierType, //6 (Exotic) 5 (Legendary)
+					type: info.itemSubType,
+					typeName: info.itemTypeName,
+					tierType: info.tierType,
 					icon: self.bungie.getUrl() + info.icon					
 				};
 	
