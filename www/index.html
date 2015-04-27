@@ -14,15 +14,14 @@
 	<script language="JavaScript" type="text/javascript" src="data/raceDefs.js"></script>
 	<script language="JavaScript" type="text/javascript" src="data/destinyDefs.js"></script>
 	<script language="JavaScript" type="text/javascript" src="scripts/lzstring.min.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/dependencies/hammer.js"></script>
     <script language="JavaScript" type="text/javascript" src="js/dependencies/jquery.js"></script>
 	<script language="JavaScript" type="text/javascript" src="js/dependencies/jquery-ui.js"></script>
+	<script language="JavaScript" type="text/javascript" src="js/dependencies/hammer.js"></script>
 	<script language="JavaScript" type="text/javascript" src="js/dependencies/bootstrap.js"></script>
 	<script language="JavaScript" type="text/javascript" src="js/dependencies/bootstrap-dialog.js"></script>
     <script language="JavaScript" type="text/javascript" src="js/dependencies/knockout.js"></script>
     <script language="JavaScript" type="text/javascript" src="js/dependencies/underscore-min.js"></script>
 	<script language="JavaScript" type="text/javascript" src="js/dependencies/fastclick.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/dependencies/knockout-delegatedEvents.js"></script>
 	<script language="JavaScript" type="text/javascript" src="scripts/bungie.js"></script>
 	<script language="JavaScript" type="text/javascript" src="js/destinyexotics.js"></script>
 	<script language="JavaScript" type="text/javascript" src="js/loadouts.js"></script>
@@ -42,20 +41,20 @@
 				<div class="title" data-bind="visible: bucketType !== 'Subclasses'">
 					<span data-bind="text: bucketType"></span>
 				</div>
-				<div class="row no-gutter" style="margin:auto;">
+				<div class="row no-gutter" style="margin:auto;" data-bind="moveItem: true">
 					<div class="itemBucket" data-bind="css: ((character.id == 'Vault' || bucketType == 'Post Master' || bucketType == 'Consumables' || bucketType == 'Materials') ? 'col-xs-12 col-sm-12 col-md-12 col-lg-12' : 'col-xs-9 col-sm-9 col-md-9 col-lg-9') + ' ' + bucketType">
-						<div data-bind="foreach: { data: character.get(bucketType), as: 'item' }, delegatedHandler: 'click'">
+						<div data-bind="foreach: { data: character.get(bucketType), as: 'item' }">
 							<span class="bucket-item" data-bind="css: ((character.id == 'Vault' || bucketType == 'Post Master'  || bucketType == 'Consumables' || bucketType == 'Materials') ? 'col-xs-3 col-sm-3 col-md-3 col-lg-3' : 'col-xs-4 col-sm-4 col-md-4 col-lg-4') + (isGridComplete ? ' complete' : ''), visible: isVisible">
-								<a data-bind="attr:{href:item.href, instanceId:item._id}">
-									<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }" data-click="setActiveItem">
+								<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
+									<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, click: setActiveItem">
 								</a>
 							</span>
 						</div>
 					</div>
 					<div style="padding-left: 4px;" class="bucket-item col-xs-3 col-sm-3 col-md-3 col-lg-3" data-bind="visible: character.id != 'Vault', with: character.itemEquipped(bucketType)">
 						<span class="col-xs-12 col-sm-12 col-md-12 col-lg-12" data-bind="css: isGridComplete ? 'complete' : '', visible: isVisible">
-							<a data-bind="attr:{href:href, instanceId:_id}">
-								<img class="itemImage" data-bind="attr: { src: icon, instanceId:_id }">
+							<a class="itemLink" data-bind="attr:{href:href, instanceId:_id}">
+								<img class="itemImage" data-bind="attr: { src: icon, instanceId:_id }, click: setActiveItem">
 							</a>
 						</span>
 					</div>					
