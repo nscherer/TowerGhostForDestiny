@@ -831,7 +831,6 @@ var app = new (function() {
 
 	var processItem = function(profile){
 		return function(item){
-			window.t = (new Date());
 			if (!(item.itemHash in window._itemDefs)){
 				console.log("found an item without a definition! " + JSON.stringify(item));
 				console.log(item.itemHash);
@@ -904,7 +903,7 @@ var app = new (function() {
 						}
 					});
 				}
-				console.log("new item time " + (new Date()-t));
+				//console.log("new item time " + (new Date()-t));
 				profile.items.push( new Item(itemObject,profile) );
 			}
 		}
@@ -951,7 +950,7 @@ var app = new (function() {
 				self.loadingUser(false);
 				self.loadLoadouts();
 				setTimeout(self.bucketSizeHandler, 500);
-				console.log("total time " + (new Date()-t));
+				console.timeEnd("avatars.forEach"); 
 			}
 		}
 		self.bungie.search(self.activeUser().activeSystem(),function(e){
@@ -967,9 +966,9 @@ var app = new (function() {
 				self.loadingUser(false);
 				return
 			}
-			console.log("search time " + (new Date()-t));
 			var avatars = e.data.characters;
 			total = avatars.length + 1;
+			console.time("self.bungie.vault");
 			self.bungie.vault(function(results){
 				var buckets = results.data.buckets;
 				var profile = new Profile({
@@ -989,12 +988,13 @@ var app = new (function() {
 				});
 				self.addWeaponTypes(profile.weapons());
 				self.characters.push(profile);
-				console.log("vault time " + (new Date()-t));
+				console.timeEnd("self.bungie.vault");
 				done()
 			});
+			console.time("avatars.forEach");
 			avatars.forEach(function(character, index){
 				self.bungie.inventory(character.characterBase.characterId, function(response) {
-					console.log("inventory time " + (new Date()-t));
+					console.time("new Profile"); 					
 					var profile = new Profile({
 						order: index+1,
 						gender: DestinyGender[character.characterBase.genderType],
@@ -1005,10 +1005,10 @@ var app = new (function() {
 						background: self.makeBackgroundUrl(character.backgroundPath),
 						level: character.characterLevel,
 						race: window._raceDefs[character.characterBase.raceHash].raceName
-					});
-					console.log("new Profile time " + (new Date()-t));
+					}); 
 					var items = [];
 
+					 
 					Object.keys(response.data.buckets).forEach(function(bucket){
 						response.data.buckets[bucket].forEach(function(obj){
 							obj.items.forEach(function(item){
@@ -1016,14 +1016,14 @@ var app = new (function() {
 							});
 						});
 					});
-
 					//simulate me having the 4th horseman
 					//items.push({"itemHash":2344494718,"bindStatus":0,"isEquipped":false,"itemInstanceId":"6917529046313340492","itemLevel":22,"stackSize":1,"qualityLevel":70});
-
-					items.forEach(processItem(profile));
+					console.time("processItems");
+					items.forEach(processItem(profile));					
+					console.timeEnd("processItems");					
 					self.addWeaponTypes(profile.items());
 					self.characters.push(profile);
-					console.log("character time " + (new Date()-t));
+					console.timeEnd("new Profile");
 					done();
 				});
 			});
@@ -1036,8 +1036,9 @@ var app = new (function() {
 			self.loadingUser(true);
 			self.bungie = new bungie(self.bungie_cookies);
 			self.characters.removeAll();
+			console.time("self.bungie.user");
 			self.bungie.user(function(user){
-				console.log("user time " + (new Date()-t));
+				console.timeEnd("self.bungie.user");
 				self.activeUser(new User(user));
 				if (user.error){
 					self.loadingUser(false);
