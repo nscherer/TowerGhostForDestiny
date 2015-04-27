@@ -36,7 +36,6 @@
 			<a data-bind="attr:{href:item.href, instanceId:item._id}">
 				<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }">
 			</a>
-			<div class="attkIcon"><div data-bind="text: primaryStat, style: { backgroundColor: DestinyDamageTypeColors[damageTypeName] }"></div></div>    
 	    </script>
 		<script type="text/html" id="sections-template">
 			<!-- ko if: character.id !== 'Vault' || (character.id == 'Vault' && bucketType !== 'Post Master') -->
