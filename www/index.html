@@ -41,20 +41,6 @@
 			<!-- ko if: character.id !== 'Vault' || (character.id == 'Vault' && bucketType !== 'Post Master') -->
 				<div class="title" data-bind="visible: bucketType !== 'Subclasses'">
 					<span data-bind="text: bucketType"></span>
-					<span data-bind="visible: character.id !== 'Vault'">
-						<!-- ko if: !(bucketType == 'Materials' || bucketType == 'Consumables' || bucketType == 'Post Master') -->
-							(<span data-bind="text: character.get(bucketType).length+1"></span>/10)
-						<!--/ko  -->
-						<!-- ko if: (bucketType == 'Materials' || bucketType == 'Consumables') -->
-							(<span data-bind="text: character.get(bucketType).length"></span>/15)
-						<!--/ko  -->
-						<!-- ko if: ( bucketType == 'Post Master' ) -->
-							(<span data-bind="text: character.get(bucketType).length"></span>/20)
-						<!--/ko  -->
-					</span>
-					<span data-bind="visible: character.id == 'Vault'">
-						(<span data-bind="text: character.get(bucketType).length"></span>/<span data-bind="text: DestinyWeaponPieces.indexOf(bucketType) > -1 ? 36 : 24"></span>)
-					</span>
 				</div>
 				<div class="row no-gutter" style="margin:auto;" data-bind="moveItem: true">
 					<div class="itemBucket" data-bind="css: ((character.id == 'Vault' || bucketType == 'Post Master' || bucketType == 'Consumables' || bucketType == 'Materials') ? 'col-xs-12 col-sm-12 col-md-12 col-lg-12' : 'col-xs-9 col-sm-9 col-md-9 col-lg-9') + ' ' + bucketType">
