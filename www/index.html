@@ -49,6 +49,11 @@
 							</span>
 						</div>
 					</div>
+					<div style="padding-left: 4px;" class="bucket-item col-xs-3 col-sm-3 col-md-3 col-lg-3" data-bind="visible: character.id != 'Vault', with: character.itemEquipped(bucketType)">
+						<span class="col-xs-12 col-sm-12 col-md-12 col-lg-12" data-bind="css: isGridComplete ? 'complete' : '', visible: isVisible">
+							<span data-bind="template: { name: 'items-template', data: $data, as: 'item' }"></span>
+						</span>
+					</div>					
 				</div>
 			<!--/ko  -->
 		</script>
