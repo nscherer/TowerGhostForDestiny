@@ -514,18 +514,6 @@ window.ko.bindingHandlers.fastclick = {
 	}
 };
 
-getEventDelegate = function (target, selector) {
- var delegate;
- while (target && target != this.el) {
-	delegate = $(target).filter(selector)[0];
-	if (delegate) {
-	   return delegate;
-	}
-	target = target.parentNode;
- }
- return undefined;
-}
-
 ko.bindingHandlers.moveItem = {
     init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
 		Hammer(element, { time: 2000 })		
@@ -552,34 +540,6 @@ ko.bindingHandlers.moveItem = {
 			});
     }
 };
-
-
-/*
-targetItem: item,
-swapItem: swapItem,
-description: item.description + "'s swap item is " + swapItem.description
-*/
-var swapTemplate = _.template('<ul class="list-group">' +
-	'<% swapArray.forEach(function(pair){ %>' +
-		'<li class="list-group-item">' +
-			'<div class="row">' +
-				'<div class="col-lg-6">' +
-					'<%= pair.description %>' +
-				'</div>' +
-				'<div class="col-lg-3">' +
-					'<a class="item" href="<%= pair.targetItem.href %>" id="<%= pair.targetItem._id %>">' +
-						'<img class="itemImage" src="<%= pair.targetItem.icon %>">' +
-					'</a>' +
-				'</div>' +
-				'<div class="col-lg-3">' +
-					'<a class="item" href="<%= pair.swapItem && pair.swapItem.href %>" id="<%= pair.swapItem && pair.swapItem._id %>">' +
-						'<img class="itemImage" src="<%= pair.swapItem && pair.swapItem.icon %>">' +
-					'</a>' +
-				'</div>' +
-			'</div>' +
-		'</li>' +
-	'<% }) %>' +
-'</ul>');
 
 var perksTemplate = _.template('<div class="destt-talent">' +
 	'<% perks.forEach(function(perk){ %>' +
