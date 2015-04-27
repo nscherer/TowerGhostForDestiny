@@ -924,10 +924,10 @@ var app = new (function() {
 		var total = 0, count = 0, profiles = [];
 		/* TODO: implement a better loading bar by using the counts and this: #loadingBar */
 		function done(profile){			
-			//profiles.push(profile);
+			profiles.push(profile);
 			count++;
 			if (count == total){
-				//self.characters(profiles); 
+				self.characters(profiles); 
 				self.shareUrl(new report().de());
 				self.loadingUser(false);
 				self.loadLoadouts();
@@ -969,7 +969,7 @@ var app = new (function() {
 					bucket.items.forEach(processItem(profile));
 				});
 				self.addWeaponTypes(profile.weapons());
-				self.characters.push(profile);
+				//self.characters.push(profile);
 				console.timeEnd("self.bungie.vault");
 				done(profile)
 			});
@@ -1005,7 +1005,7 @@ var app = new (function() {
 					console.timeEnd("processItems");
 					self.addWeaponTypes(profile.items());					
 					console.timeEnd("new Profile");
-					self.characters.push(profile);
+					//self.characters.push(profile);
 					done(profile);
 				});
 			});
