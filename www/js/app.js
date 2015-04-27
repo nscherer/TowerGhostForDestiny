@@ -13,7 +13,9 @@ console.time = function(timer)
 console.timeEnd = function(timer)
 {
     if(!timer){timer="Timer";}
-    console.log(timer+": "+(new Date().getTime()-console.timers[timer]));
+	var result = (new Date().getTime()-console.timers[timer]);
+    console.log(timer+": "+result);
+	return result;
 };
 
 var dialog = (function(options){
@@ -992,7 +994,7 @@ var app = new (function() {
 				self.loadLoadouts();
 				setTimeout(self.bucketSizeHandler, 500);
 				console.timeEnd("other Stuff");
-				console.timeEnd("avatars.forEach"); 
+				alert(console.timeEnd("avatars.forEach"));
 			}
 		}
 		self.bungie.search(self.activeUser().activeSystem(),function(e){
