@@ -927,9 +927,7 @@ var app = new (function() {
 			//profiles.push(profile);
 			count++;
 			if (count == total){
-				//console.time("finished loading");
-				//self.characters(profiles);
-				//console.timeEnd("finished loading");
+				//self.characters(profiles); 
 				self.shareUrl(new report().de());
 				self.loadingUser(false);
 				self.loadLoadouts();
