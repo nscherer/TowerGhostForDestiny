@@ -60,19 +60,19 @@ var Profile = function(model){
 Profile.prototype = {
 	_weapons: function(){
 		return _.filter(this.items(), function(item){
-			if (DestinyWeaponPieces.indexOf(item.bucketType) > -1 )
+			if (item.weaponIndex > -1 )
 				return item;
 		});
 	},
 	_armor: function(){
 		return _.filter(this.items(), function(item){
-			if (DestinyArmorPieces.indexOf(item.bucketType) > -1 )
+			if (item.armorIndex > -1 )
 				return item;
 		});
 	},
 	_general: function(){
 		return _.filter(this.items(), function(item){
-			if (DestinyArmorPieces.indexOf(item.bucketType) == -1 && DestinyWeaponPieces.indexOf(item.bucketType) == -1 && item.bucketType !== "Post Master" && item.bucketType !== "Subclasses")
+			if (item.armorIndex == -1 && item.weaponIndex == -1 && item.bucketType !== "Post Master" && item.bucketType !== "Subclasses")
 				return item;
 		});
 	},
@@ -258,8 +258,8 @@ Item.prototype = {
 			if ( self.tierType == 6 && allowReplacement){
 				//console.log("item is exotic");
 				var otherExoticFound = false,
-					otherBucketTypes = DestinyWeaponPieces.indexOf(self.bucketType) > -1 ? _.clone(DestinyWeaponPieces) :  _.clone(DestinyArmorPieces);
-				otherBucketTypes.splice(DestinyWeaponPieces.indexOf(self.bucketType),1);
+					otherBucketTypes = self.weaponIndex > -1 ? _.clone(DestinyWeaponPieces) :  _.clone(DestinyArmorPieces);
+				otherBucketTypes.splice(self.weaponIndex,1);
 				//console.log("the other bucket types are " + JSON.stringify(otherBucketTypes));
 				_.each(otherBucketTypes, function(bucketType){
 					var otherExotic = _.filter(_.where( self.character.items(), { bucketType: bucketType, tierType: 6 }), function(item){
@@ -862,10 +862,12 @@ var app = new (function() {
 					type: info.itemSubType, //12 (Sniper)
 					typeName: info.itemTypeName, //Sniper Rifle
 					tierType: info.tierType, //6 (Exotic) 5 (Legendary)
-					icon: self.bungie.getUrl() + info.icon
+					icon: self.bungie.getUrl() + info.icon					
 				});
+				itemObject.weaponIndex = DestinyWeaponPieces.indexOf(self.bucketType);
+				itemObject.armorIndex = DestinyArmorPieces.indexOf(self.bucketType);
 				/* both weapon engrams and weapons fit under this condition*/
-				if ( (DestinyWeaponPieces.indexOf(itemObject.bucketType) > -1 || DestinyArmorPieces.indexOf(itemObject.bucketType) > -1) && item.perks.length > 0 ){
+				if ( (itemObject.weaponIndex > -1 || itemObject.armorIndex > -1) && item.perks.length > 0 ){
 					itemObject.perks = item.perks.map(function(perk){
 						if (perk.perkHash in window._perkDefs){
 							var p = window._perkDefs[perk.perkHash];
