@@ -1,7 +1,6 @@
 var DestinyGender = {
 	"0": "Male",
-	"1": "Female",
-	"2": "Unknown"
+	"1": "Female"
 };
 var DestinyClass = {
     "0": "Titan",
