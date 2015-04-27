@@ -1,14 +1,14 @@
-var DestinyGender = {
+window.DestinyGender = {
 	"0": "Male",
 	"1": "Female"
 };
-var DestinyClass = {
+window.DestinyClass = {
     "0": "Titan",
     "1": "Hunter",
     "2": "Warlock",
     "3": "Unknown"
 };
-var DestinyDamageTypes = {
+window.DestinyDamageTypes = {
     "0": "None",
     "1": "Kinetic",
     "2": "Arc",
@@ -16,7 +16,7 @@ var DestinyDamageTypes = {
     "4": "Void",
     "5": "Raid"
 };
-var DestinyBucketTypes = {
+window.DestinyBucketTypes = {
 	"1498876634": "Primary",
 	"2465295065": "Special",
 	"953998645": "Heavy",
@@ -34,15 +34,15 @@ var DestinyBucketTypes = {
 	"3284755031": "Subclasses",
 	"12345": "Post Master"
 }
-var DestinyArmorPieces = [ "Helmet", "Gauntlet", "Chest", "Boots", "Class Items" ];
-var DestinyWeaponPieces = [ "Primary","Special","Heavy" ];
-var _collectionsFix = {
+window.DestinyArmorPieces = [ "Helmet", "Gauntlet", "Chest", "Boots", "Class Items" ];
+window.DestinyWeaponPieces = [ "Primary","Special","Heavy" ];
+window._collectionsFix = {
 	"exoticWeapons": [],
 	"vaultWeapons": [],
 	"crotaWeapons": [],
-	"ironWeapons": [1488311144,1244530683,1451703869,3244859508,996787434,3800763760,337037804,1487387187], /* 300 ATK: Fusion,Sniper,Shotgun,LMG,Rocket,Scout,Hand Cannon,Pulse */
+	"ironWeapons": [1488311144,1244530683,1451703869,3244859508,996787434,3800763760,337037804,1487387187],
 	"exoticArmor": [],
 	"vaultArmor": [],
 	"crotaArmor": [],
 	"ironArmor": []
-}
+};

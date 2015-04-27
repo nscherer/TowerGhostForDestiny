@@ -175,7 +175,7 @@ Item.prototype = {
 		console.log("perks are " + JSON.stringify(self.perks));
 		console.log("description is " + self.description);
 		console.log("keyword has description " + ($parent.searchKeyword() !== "" && self.description.toLowerCase().indexOf($parent.searchKeyword().toLowerCase()) >-1));*/
-		return (searchFilter) && (dmgFilter) && (setFilter) && (tierFilter) && (progressFilter) && (typeFilter) && (uniqueFilter);
+		return (searchFilter) && (dmgFilter) && (setFilter) && (tierFilter) && (progressFilter) && (typeFilter);
 	},
 	/* helper function that unequips the current item in favor of anything else */
 	unequip: function(callback){
