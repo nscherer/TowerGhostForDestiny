@@ -42,9 +42,9 @@
 					<span data-bind="text: bucketType"></span>
 				</div>
 				<div class="row no-gutter" style="margin:auto;">
-					<div class="itemBucket" data-bind="css: ((character.id == 'Vault' || bucketType == 'Post Master' || bucketType == 'Consumables' || bucketType == 'Materials') ? 'col-xs-12 col-sm-12 col-md-12 col-lg-12' : 'col-xs-9 col-sm-9 col-md-9 col-lg-9') + ' ' + bucketType">
+					<div class="itemBucket">
 						<div data-bind="foreach: { data: character.get(bucketType), as: 'item' }">
-							<span class="bucket-item" data-bind="css: ((character.id == 'Vault' || bucketType == 'Post Master'  || bucketType == 'Consumables' || bucketType == 'Materials') ? 'col-xs-3 col-sm-3 col-md-3 col-lg-3' : 'col-xs-4 col-sm-4 col-md-4 col-lg-4') + (isGridComplete ? ' complete' : ''), visible: isVisible">
+							<span class="bucket-item" data-bind="visible: isVisible">
 								<span data-bind="template: { name: 'items-template', data: item }"></span>
 							</span>
 						</div>
