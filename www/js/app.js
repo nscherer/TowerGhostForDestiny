@@ -849,8 +849,8 @@ var app = new (function() {
 					tierType: info.tierType, //6 (Exotic) 5 (Legendary)
 					icon: self.bungie.getUrl() + info.icon					
 				});
-				itemObject.weaponIndex = DestinyWeaponPieces.indexOf(self.bucketType);
-				itemObject.armorIndex = DestinyArmorPieces.indexOf(self.bucketType);
+				itemObject.weaponIndex = DestinyWeaponPieces.indexOf(itemObject.bucketType);
+				itemObject.armorIndex = DestinyArmorPieces.indexOf(itemObject.bucketType);
 				/* both weapon engrams and weapons fit under this condition*/
 				if ( (itemObject.weaponIndex > -1 || itemObject.armorIndex > -1) && item.perks.length > 0 ){
 					itemObject.perks = item.perks.map(function(perk){
