@@ -821,34 +821,32 @@ var app = new (function() {
 				console.log(item.itemHash);
 				return;
 			}
-			var itemObject = {
-				id: item.itemHash,
-				_id: item.itemInstanceId,
-				characterId: profile.id,
-				damageType: item.damageType,
-				damageTypeName: DestinyDamageTypes[item.damageType],
-				isEquipped: item.isEquipped,
-				isGridComplete: item.isGridComplete,
-				locked: item.locked
-			};
-
-			if (item.primaryStat){
-				itemObject.primaryStat = item.primaryStat.value;
-			}
-			if (item.progression){
-				itemObject.progression = (item.progression.progressToNextLevel == 0 && item.progression.currentProgress > 0);
-			}
-
 			var info = window._itemDefs[item.itemHash];
 			if (info.bucketTypeHash in DestinyBucketTypes){
-				itemObject = _.extend(itemObject,{
+				var itemObject = {
+					id: item.itemHash,
+					_id: item.itemInstanceId,
+					characterId: profile.id,
+					damageType: item.damageType,
+					damageTypeName: DestinyDamageTypes[item.damageType],
+					isEquipped: item.isEquipped,
+					isGridComplete: item.isGridComplete,
+					locked: item.locked,
 					description: info.itemName,
 					bucketType: (item.location == 4) ? "Post Master" : DestinyBucketTypes[info.bucketTypeHash],
 					type: info.itemSubType, //12 (Sniper)
 					typeName: info.itemTypeName, //Sniper Rifle
 					tierType: info.tierType, //6 (Exotic) 5 (Legendary)
 					icon: self.bungie.getUrl() + info.icon					
-				});
+				};
+	
+				if (item.primaryStat){
+					itemObject.primaryStat = item.primaryStat.value;
+				}
+				if (item.progression){
+					itemObject.progression = (item.progression.progressToNextLevel == 0 && item.progression.currentProgress > 0);
+				}
+				
 				itemObject.weaponIndex = DestinyWeaponPieces.indexOf(itemObject.bucketType);
 				itemObject.armorIndex = DestinyArmorPieces.indexOf(itemObject.bucketType);
 				/* both weapon engrams and weapons fit under this condition*/
