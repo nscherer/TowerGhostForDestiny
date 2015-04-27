@@ -123,7 +123,21 @@ body {
     line-height: 1;
     padding: 2px 3px;
 }
-
+.attkIcon .None {
+	background-color: #BBB;
+}
+.attkIcon .Kinetic {
+	background-color: #BBB;
+}
+.attkIcon .Arc {
+	background-color: #85C5EC;
+}
+.attkIcon .Solar {
+	background-color: #C48A01;
+}
+.attkIcon .Void {
+	background-color: #B184C5;
+}
 .complete .attkIcon > div {
     bottom: 2px;
     left: 2px;

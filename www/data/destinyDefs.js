@@ -37,13 +37,6 @@ var DestinyBucketTypes = {
 }
 var DestinyArmorPieces = [ "Helmet", "Gauntlet", "Chest", "Boots", "Class Items" ];
 var DestinyWeaponPieces = [ "Primary","Special","Heavy" ];
-var DestinyDamageTypeColors = {
-	"None": "#BBB",
-	"Kinetic": "#BBB",
-	"Arc": "#85C5EC",
-	"Solar": "#C48A01",
-	"Void": "#B184C5"
-}
 var _collectionsFix = {
 	"exoticWeapons": [],
 	"vaultWeapons": [],

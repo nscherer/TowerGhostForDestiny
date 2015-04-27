@@ -3,21 +3,6 @@ window.isMobile = (/ios|iphone|ipod|ipad|android|iemobile/i.test(navigator.userA
 window.isWindowsPhone = (/iemobile/i.test(navigator.userAgent));
 window.supportsCloudSaves = window.isChrome || window.isMobile;
 
-if(!console){var console = {};} // for those without a console - mind the context
-console.timers = {};
-console.time = function(timer)
-{
-    if(!timer){timer="Timer";}
-    console.timers[timer] = new Date().getTime();
-};
-console.timeEnd = function(timer)
-{
-    if(!timer){timer="Timer";}
-	var result = (new Date().getTime()-console.timers[timer]);
-    console.log(timer+": "+result);
-	return result;
-};
-
 var dialog = (function(options){
 	var self = this;
 
@@ -46,13 +31,6 @@ var dialog = (function(options){
 
 	return self.modal;
 });
-
-var filterItemByType = function(type, isEquipped){
-	return function(weapon){
-		if (weapon.bucketType == type && weapon.isEquipped() == isEquipped)
-			return weapon;
-	}
-}
 
 var Profile = function(model){
 	var self = this;
@@ -97,11 +75,16 @@ Profile.prototype = {
 				return item;
 		});
 	},
+	filterItemByType: function(type, isEquipped){
+		return function(item){
+			return (item.bucketType == type && item.isEquipped() == isEquipped);
+		}
+	},
 	get: function(type){
-		return this.items().filter(filterItemByType(type, false));
+		return this.items().filter(this.filterItemByType(type, false));
 	},
 	itemEquipped: function(type){
-		return ko.utils.arrayFirst(this.items(), filterItemByType(type, true));
+		return ko.utils.arrayFirst(this.items(), this.filterItemByType(type, true));
 	}
 }
 
@@ -982,19 +965,17 @@ var app = new (function() {
 		var total = 0, count = 0, profiles = [];
 		/* TODO: implement a better loading bar by using the counts and this: #loadingBar */
 		function done(profile){			
-			profiles.push(profile);
+			//profiles.push(profile);
 			count++;
 			if (count == total){
 				//console.time("finished loading");
-				self.characters(profiles);
+				//self.characters(profiles);
 				//console.timeEnd("finished loading");
-				console.time("other Stuff");
 				self.shareUrl(new report().de());
 				self.loadingUser(false);
 				self.loadLoadouts();
 				setTimeout(self.bucketSizeHandler, 500);
-				console.timeEnd("other Stuff");
-				alert(console.timeEnd("avatars.forEach"));
+				console.timeEnd("avatars.forEach");
 			}
 		}
 		self.bungie.search(self.activeUser().activeSystem(),function(e){
@@ -1031,7 +1012,7 @@ var app = new (function() {
 					bucket.items.forEach(processItem(profile));
 				});
 				self.addWeaponTypes(profile.weapons());
-				//self.characters.push(profile);
+				self.characters.push(profile);
 				console.timeEnd("self.bungie.vault");
 				done(profile)
 			});
@@ -1067,7 +1048,7 @@ var app = new (function() {
 					console.timeEnd("processItems");
 					self.addWeaponTypes(profile.items());					
 					console.timeEnd("new Profile");
-					//self.characters.push(profile);
+					self.characters.push(profile);
 					done(profile);
 				});
 			});
