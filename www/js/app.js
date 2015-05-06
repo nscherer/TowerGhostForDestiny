@@ -1140,36 +1140,10 @@ var app = new (function() {
 		self.characters(self.characters().concat( self.characters.splice(0,1) ));
 	}
 
-	this.yqlRequest = function(params, callback){
-		var request = window.encodeURIComponent("http://www.towerghostfordestiny.com/api.cfm?" + $.param(params))
-		var requestURL = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20json%20where%20url%3D%22" + request + "%22&format=json&callback=";
-		$.ajax({
-			url: requestURL,
-			success: function(response){
-				callback(response.query.results);
-			}
-		});
-	}
-
 	this.saveLoadouts = function(includeMessage){
 		var _includeMessage = _.isUndefined(includeMessage) ? true : includeMessage;
-		if (supportsCloudSaves == true){
-			var params = {
-				action: "save",
-				membershipId: parseFloat(app.activeUser().user.membershipId),
-				loadouts: JSON.stringify(self.loadouts())
-			}
-			self.yqlRequest(params, function(results){
-				if (_includeMessage == true){
-					if (results.success) BootstrapDialog.alert("Loadouts saved to the cloud");
-					else BootstrapDialog.alert("Error has occurred saving loadouts");
-				}
-			});
-		}
-		else {
-			var loadouts = ko.toJSON(self.loadouts());
-			window.localStorage.setItem("loadouts", loadouts);
-		}
+		var loadouts = ko.toJSON(self.loadouts());
+		window.localStorage.setItem("loadouts", loadouts);
 	}
 
 	this.loadLoadouts = function(){
@@ -1182,33 +1156,7 @@ var app = new (function() {
 		else {
 			_loadouts = [];
 		}
-		if (supportsCloudSaves == true){
-			self.yqlRequest({ action: "load", membershipId: parseFloat(self.activeUser().user.membershipId) }, function(results){
-				var _results = [];
-				if (results && results.json && results.json.loadouts){
-				    _results = _.isArray(results.json.loadouts) ? results.json.loadouts : [results.json.loadouts];
-					_results = _.map(_results, function(loadout){
-						loadout.ids = _.isArray(loadout.ids) ? loadout.ids : [loadout.ids];
-						loadout.equipIds = _.isEmpty(loadout.equipIds) ? [] : loadout.equipIds;
-						loadout.equipIds = _.isArray(loadout.equipIds) ? loadout.equipIds : [loadout.equipIds];
-						return new Loadout(loadout);
-					});
-				}
-				/* one time migrate joins the two arrays and clears the local one */
-				if(_loadouts.length > 0){
-					_results = _loadouts.concat(_results);
-					window.localStorage.setItem("loadouts", "");
-				}
-				self.loadouts(_results);
-				/* one time migrate saves the new joined array to the cloud */
-				if(_loadouts.length > 0){
-					self.saveLoadouts(false);
-				}
-			});
-		}
-		else if (_loadouts.length > 0){
-			self.loadouts(_loadouts);
-		}
+		self.loadouts(_loadouts);
 	}
 	this.init = function(){
 		self.doRefresh.subscribe(self.refreshHandler);
