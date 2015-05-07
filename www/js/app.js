@@ -1412,6 +1412,7 @@ var app = new (function() {
 	}
 	
 	this.init = function(){
+		BootstrapDialog.alert("There is an update in the Windows Phone Store for 2.3.7, this version will not be updated any more");
 		self.doRefresh.subscribe(self.refreshHandler);
 		self.refreshSeconds.subscribe(self.refreshHandler);
 		self.loadoutMode.subscribe(self.refreshHandler);
