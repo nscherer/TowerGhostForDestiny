@@ -1381,7 +1381,7 @@ var app = new (function() {
 			return $(this).attr("class").indexOf("activeProfile") > -1
 		}).index(".quickScrollView img");
 		self.scrollTo( $(".profile:eq("+index+")").position().top - 50, function(){
-			$.toaster({ priority : 'info', title : 'View Changed', message : 'Set to ' + DestinyViews[newIndex] });
+			$.toaster({ priority : 'info', title : 'View:', message : DestinyViews[newIndex] });
 		});
 		
 	}

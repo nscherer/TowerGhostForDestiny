@@ -304,6 +304,7 @@ body {
   margin-left: 15px;
   margin-right: 15px;
 }
+.alert .message { text-align: center }
 li a { color: #3080CF }
 .Subclasses { min-height: 0px !important; }
 .lockIcon { position: relative; }
