@@ -86,11 +86,13 @@ try {
 	  	//This is for Mobile platform/Chrome
 		//console.log("received a _request");
 	  	if (isChrome || isMobile){
+			//console.time("XMLHttpRequest"); 
 			var r = new XMLHttpRequest();
 		    r.open(opts.method, url + "Platform" + opts.route, true);
 		    r.setRequestHeader('X-API-Key', apikey);
 		    r.onload = function() {
 			  var response = this.response;
+			  //console.timeEnd("XMLHttpRequest"); 
 			  try {
 			  	response = JSON.parse(this.response);
 			  }catch(e){}		  
@@ -115,7 +117,7 @@ try {
 			};
 		
 		    _getToken(function(token) {
-				//console.log("_getToken finished with " + token);
+			  //console.log("_getToken finished with " + token);
 		      if(token != null) {
 		        r.withCredentials = true;
 		        r.setRequestHeader('x-csrf', token);
@@ -126,7 +128,7 @@ try {
 					r.send();
 				}
 		      } else {
-		        opts.complete({error: 'cookie not found'});
+		        opts.complete({"code": 99, "error": "Please sign-in to continue."});
 		      }
 		    });	
 		}
@@ -181,6 +183,9 @@ try {
 	    });
 	  }
 	  this.search = function(activeSystem, callback) {
+		if ( _.isUndefined(active.type) ){
+			return BootstrapDialog.alert("Please sign in before attempting to refresh");
+		}	  
 	  	this.setsystem(activeSystem);
 	    _request({
 	      route: '/Destiny/' + active.type + '/Stats/GetMembershipIdByDisplayName/' + active.id + '/',
