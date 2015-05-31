@@ -40,7 +40,7 @@ var loader = new(function() {
     this.loadingLocal = false;
     this.init = function() {
         /* I think the best basic premise I can use for loading an app dynamically
-			if remoteApp is cached load it first
+			if remoteApp is cached load it first, checkVersions after and load remoteApp after
 			else if remoteApp is not cached automatically load localApp, remoteApp after			
 		 */
         tgd.versions = {
