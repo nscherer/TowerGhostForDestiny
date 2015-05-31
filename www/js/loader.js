@@ -61,7 +61,7 @@ var loader = new(function() {
         wwwSync.on('complete', function(data) {
             console.log('complete');
             console.log(data);
-            self.processAssets(data.localPath);
+            self.processAssets(data.localPath + "/");
         });
 
         wwwSync.on('error', function(data) {
