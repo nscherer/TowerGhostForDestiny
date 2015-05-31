@@ -176,11 +176,9 @@ var loader = new(function() {
         });
     }
 
-	self.jsFiles = 0;
 	this.loadTGD = function(){
-		self.jsFiles--;
-		console.log("jsFiles left to load " + self.jsFiles);
-		if (self.jsFiles == 0){
+		console.log("jsFiles left to load " + self.assets.loaded_js.length);
+		if (self.assets.loaded_js.length == 0){
 			app.init();
 		}
 	}
@@ -198,7 +196,7 @@ var loader = new(function() {
     }
 
     this.addJs = function(basePath) {
-		self.jsFiles = self.assets.js.length;
+		self.assets.loaded_js = self.assets.js;
         $.each(self.assets.js, function(index, file) {
             self.insertJsFile(basePath + file);
         });
@@ -221,7 +219,7 @@ var loader = new(function() {
         fileref.setAttribute("src", filename);
 		fileref.onload = function(){
 			console.log("file loaded " + filename);
-			self.loadTGD();
+			self.assets.loaded_js.splice(self.assets.loaded_js.indexOf(filename),1);
 		};
 		fileref.onerror = function(){
 			console.log("error loading " + filename);
