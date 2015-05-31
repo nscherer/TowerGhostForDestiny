@@ -29,7 +29,6 @@
     "scripts/dependencies/bootstrap.js",
     "scripts/dependencies/bootstrap-dialog.js",
     "scripts/dependencies/fastclick.js",
-    "scripts/dependencies/hammer.js",
     "scripts/dependencies/jquery.toaster.js",
     "scripts/dependencies/lzstring.min.js",
     "scripts/version.js",

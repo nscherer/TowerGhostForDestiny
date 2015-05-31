@@ -62,11 +62,8 @@ var loader = new(function() {
         self.wwwSync.on('complete', function(data) {
             console.log('complete ' + self.loadingLocal);
             if (self.loadingLocal == false) {
+                //local copy cached loading that
                 self.processAssets(data.localPath + "/");
-            } else {
-                if (confirm("An update has been found would you like to restart now?")) {
-                    location.reload();
-                }
             }
         });
 
@@ -76,9 +73,9 @@ var loader = new(function() {
         });
 
         self.wwwSync.on('progress', function(data) {
-            console.log('progress');
             if (data.status == 1 && self.loadingLocal == false) {
                 self.loadingLocal = true;
+                //loading built in first time assets
                 self.processAssets("");
             }
         });
