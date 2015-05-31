@@ -58,8 +58,7 @@ var loader = new(function() {
             type: "local"
         });
 
-        /* this works perfectly */
-		wwwSync.on('complete', function(data) {
+		self.wwwSync.on('complete', function(data) {
             console.log('complete ' + self.loadingLocal);
             console.log(data);
 			if (self.loadingLocal == false){
@@ -79,8 +78,73 @@ var loader = new(function() {
 				self.processAssets("");
 			}
         });
+		
+		$.ajax({
+			url: api_url + "/versions.cfm",
+			success: function(versions){
+				tgd.versions.remote = versions;
+				self.checkVersions();
+			},			
+			error: function(){
+				if (_.isEmpty(tgd.versions.www)){
+					/* sorry the server is down the app wont load at all */
+				}
+				else {
+					/* keep loading */
+				}				
+			}
+		});		
     }
 
+	var count = 0, wwwPath = "";
+	this.loadApp = function(type, path){
+		count++;
+		if (type == "www"){
+			wwwPath = path;
+		}
+		if (count == 3 && wwwPath){
+			BootstrapDialog.alert("Please restart the app to complete the update");
+		}
+	}
+		
+	this.checkVersions = function(){
+		if ( tgd.versions.local.www() !== tgd.versions.remote.www ){
+			var wwwSync = ContentSync.sync({ src: api_url + '/www.zip', id: 'www', copyCordovaAssets: false, type: "replace" });	
+			wwwSync.on('complete', function(data) { 
+				console.log('updated www'); 
+				tgd.versions.local.www(tgd.versions.remote.www);
+				self.loadApp('www',data.localPath);
+			});
+		}		
+		else {
+			self.loadApp('www');
+		}
+		if ( tgd.versions.local.itemDefs() !== tgd.versions.remote.itemDefs ){
+			var itemDefsSync = ContentSync.sync({ src: api_url + '/itemDefs.zip', id: 'itemDefs_' + tgd.locale, copyCordovaAssets: false, type: "replace" });	
+			itemDefsSync.on('complete', function(data) { 
+				console.log('updated itemDefs'); 
+				tgd.versions.local.itemDefs(tgd.versions.remote.itemDefs);
+				self.loadApp('itemDefs',data.localPath);
+			});
+		}
+		else {
+			self.loadApp('itemDefs');
+		}
+		/* save a contentsync call here because all the icons are built in */
+		if ( tgd.versions.local.icons() !== tgd.versions.remote.icons ){
+			var iconsSync = ContentSync.sync({ src: api_url + '/' + tgd.versions.remote.icon + '/icons.zip', id: 'icons', copyCordovaAssets: false, type: 'merge' });	
+			iconsSync.on('complete', function(data) { 
+				console.log('complete'); 
+				tgd.versions.local.icons(tgd.versions.remote.icons);
+				self.loadApp('icons',data.localPath);
+			});
+		}
+		else {
+			self.loadApp('icons');
+		}
+	}	
+
+	
     this.processAssets = function(path) {
 		console.log("loading manifest from: " + (path + "sync/assets_resolved.json"));
         $.ajax({
