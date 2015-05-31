@@ -169,9 +169,9 @@ var loader = new(function() {
             success: function(assets) {
                 self.assets = JSON.parse(assets);
                 console.log(self.assets);
-                self.addCss();
-                self.addJs();
-                self.addTemplates();               
+                self.addCss(path);
+                self.addJs(path);
+                self.addTemplates(path);               
             }
         });
     }
@@ -184,22 +184,22 @@ var loader = new(function() {
 		}
 	}
 	
-    this.addTemplates = function() {
+    this.addTemplates = function(basePath) {
         $.each(self.assets.templates, function(index, file) {
-            self.insertHtmlFile(file);
+            self.insertHtmlFile(basePath + file);
         });
     }
 
-    this.addCss = function() {
+    this.addCss = function(basePath) {
         $.each(self.assets.css, function(index, file) {
-            self.insertCssFile(file);
+            self.insertCssFile(basePath + file);
         });
     }
 
-    this.addJs = function() {
+    this.addJs = function(basePath) {
 		self.jsFiles = self.assets.js.length;
         $.each(self.assets.js, function(index, file) {
-            self.insertJsFile(file);
+            self.insertJsFile(basePath + file);
         });
     }
 
