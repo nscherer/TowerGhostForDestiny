@@ -11,12 +11,10 @@ SyncTask = new(function() {
             syncTask.trigger(event);
         }, 1000 * 60);
 
-        setTimeout(function() {
-            var event = jQuery.Event("progress");
-            event.progress = 5;
-            event.status = 1;
-            syncTask.trigger(event);
-        }, 1000 * 5);
+        var event = jQuery.Event("progress");
+        event.progress = 5;
+        event.status = 1;
+        syncTask.trigger(event);
 
         return syncTask;
     }

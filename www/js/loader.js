@@ -61,10 +61,14 @@ var loader = new(function() {
 
         self.wwwSync.on('complete', function(data) {
             console.log('complete ' + self.loadingLocal);
-            console.log(data);
             if (self.loadingLocal == false) {
                 self.processAssets(data.localPath + "/");
             }
+			else {
+				if (confirm("An update has been found would you like to restart now?")){
+					location.reload();
+				}
+			}
         });
 
         self.wwwSync.on('error', function(data) {
