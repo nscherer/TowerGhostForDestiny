@@ -18,9 +18,12 @@ SyncTask = new (function(){
 
 })
  
+if (!isMobile){
 
-ContentSync = new (function(){
-	this.sync = function(options){
-		return SyncTask.create(options);
-	}
-});
+	ContentSync = new (function(){
+		this.sync = function(options){
+			return SyncTask.create(options);
+		}
+	});
+
+}
