@@ -1,0 +1,93 @@
+ <div class="alert alert-info" data-bind="visible: shareView" style="display:none;">
+        <strong>DestinyExotics.com</strong> Share URL: <a target="_blank" data-bind="attr:{href: shareUrl}"><span data-bind="text: shareUrl"></span></a>
+    </div>
+    <div class="alert alert-success" data-bind="visible: showMissing" style="display:none;">
+        <strong>Missing Items</strong>
+        <span data-bind="foreach: { data: missingSets }">
+			<a data-bind="attr:{ href: 'https://destinydb.com/items/' + $data }, fastclick: function(){ return false }"><img data-bind="attr:{src: _itemDefs[ $data ] && ($root.bungie.getUrl() +_itemDefs[ $data ].icon), title: _itemDefs[ $data ] && _itemDefs[ $data ].name }" width="48"></a>
+		</span>
+    </div>
+    <div data-bind="with: $root.activeUser()" style="">
+        <div data-bind="visible: typeof error !== 'undefined'" style="display:none;">
+            <div class="alert alert-danger" data-bind="visible: typeof code !== 'undefined' && code != 99">
+                <strong>Error:</strong> <span data-bind="text: typeof error == 'undefined' ? '' : error"></span>
+            </div>
+            <div data-bind="visible: typeof code !== 'undefined' && (code == 99) || (typeof error !== 'undefined' && (error == 'network error:502' || error == 'network error:503'))">
+                <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-lg-4 col-lg-offset-4 text-center">
+                    <div class="panel panel-success" id="loginForm">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Welcome to Tower Ghost for Destiny!</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>To get started you'll need to log in to your Bungie.net account via:</p>
+                            <div class="btn-padding">
+                                <div class="form-group">
+                                    <a data-bind="fastclick:$root.openBungieWindow('Xuid')" style="cursor:pointer; color:#1a1e24" target="_blank" class="btn btn-secondary btn-block"><img src="assets/xbox_live.png" /> Xbox Live</a>
+                                </div>
+                                <div class="form-group">
+                                    <a data-bind="fastclick:$root.openBungieWindow('Psnid')" style="cursor:pointer; color:#1a1e24" target="_blank" class="btn btn-secondary btn-block"><img src="assets/playstation.png"> Playstation Network</a>
+                                </div>
+                            </div>
+                            <p>Please wait for the login window to auto close as TGD prepares your information.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="display:none;" data-bind="visible: loadingUser() == true && hiddenWindowOpen() == false">
+        <div class="col-xs-12">
+            <h4>Please wait, loading arsenal from Bungie</h4>
+            <div class="progress progress-striped active">
+                <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+            </div>
+        </div>
+    </div>
+    <div style="display:none;" data-bind="visible: hiddenWindowOpen() == true">
+        <div class="col-xs-12">
+            <h4>Please be patient, logging into Bungie</h4>
+            <div class="progress progress-striped active">
+                <div class="progress-bar progress-bar-warning" style="width: 100%"></div>
+            </div>
+        </div>
+    </div>
+    <nav data-bind="with: activeItem" id="move-popup" class="navbar navbar-default navbar-fixed-bottom" style="display:none;">
+        <div class="container-fluid">
+            <div class="move-popup row no-gutter">
+                <div class="item-name col-xs-12">
+                    Move: <span data-bind="text: description"></span>
+                </div>
+                <div class="locations col-xs-12 col-md-10 col-md-offset-1 col-lg-9 col-lg-offset-2">
+                    <div class="locations" data-bind="foreach: { data: $root.orderedCharacters, as: 'avatar' }">
+                        <div class="move-button col-xs-2" data-bind="attr: { title: avatar.uniqueName }, click: function(){ $parent.store(avatar.id) }, visible: avatar.id == 'Vault' && $parent.character.id !== 'Vault' && $parent.bucketType !== 'Subclasses'">
+                            <div class="attkIcon">
+                                <div class="icon-banner">vault</div>
+                                <img data-bind="attr: { src : imgIcon }">
+                                <div class="lower-left" data-bind="text: classLetter"></div>
+                            </div>
+                        </div>
+                        <div class="move-button col-xs-2" data-bind="attr: { title: avatar.uniqueName }, click: function(){ $parent.store(avatar.id) }, visible: $parent.isStoreable(avatar.id)">
+                            <div class="attkIcon">
+                                <div class="icon-banner">store</div>
+                                <img data-bind="attr: { src : imgIcon }">
+                                <div class="lower-left" data-bind="text: classLetter"></div>
+                            </div>
+                        </div>
+                        <div class="move-button col-xs-2" data-bind="attr: { title: avatar.uniqueName }, click: function(){ $parent.equip(avatar.id) }, visible: $parent.isEquippable(avatar.id)">
+                            <div class="attkIcon">
+                                <div class="icon-banner">equip</div>
+                                <img data-bind="attr: { src : imgIcon }">
+                                <div class="lower-left" data-bind="text: classLetter"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="move-button col-xs-2" data-bind="attr: { title: 'extras' }, click: function(){ extrasGlue() }, visible: (character.id !== 'Vault') && (bucketType == 'Materials' || bucketType == 'Consumables')">
+                        <div class="attkIcon">
+                            <div class="icon-banner">extras</div>
+                            <img src="assets/icon128.png">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>

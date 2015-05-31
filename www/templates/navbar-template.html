@@ -1,0 +1,228 @@
+	<nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#" data-bind="click: showVersion">TGD <span data-bind="visible: !isMobile"><span class="version">2.6.4</span></a>
+                <div class="quickScrollView" data-bind="foreach: { data: $root.orderedCharacters, as: 'avatar' }">
+                    <div class="mobile-characters">
+                        <img class="mobile-characters-image" data-bind="attr: {src : imgIcon, title: uniqueName}, css: id, scrollToView: false">
+                    </div>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a data-bind="fastclick: clearFilters" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-filter"></i> <span class="clear-filters-text">Clear Filters</span></a>
+                    </li>
+                    <li class="dropdown">
+                        <a data-bind="fastclick: refreshButton" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-refresh text-success"></i> <span class="refresh-text">Refresh</span></a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-cog"></i> <span class="settings-text">Settings</span> <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#" data-bind="fastclick: clearFilters"><i class="fa fa-filter"></i>Clear Filters</a></li>
+                            <li><a href="#" data-bind="fastclick: showAbout"><i class="fa fa-info"></i>About</a></li>
+                            <li><a href="#" data-bind="fastclick: showHelp"><i class="fa fa-question"></i>Help</a></li>
+                            <li><a href="#" data-bind="fastclick: donate"><i class="fa fa-credit-card"></i>Donate</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#" data-bind="fastclick: toggleShareView"><i class="fa fa-share-alt"></i>DestinyExotics Share URL</a></li>
+                            <li class="divider"></li>
+                            <li data-bind="fastclick: toggleRefresh, css: doRefresh() == true ? 'active' : ''">
+                                <a href="#"><i class="fa" data-bind="css: doRefresh() == true ? 'fa-check-square' : 'fa-square'"></i>Auto Refresh</a>
+                            </li>
+                            <li data-bind="fastclick: toggleDestinyDbTooltips, css: tooltipsEnabled() == true ? 'active' : ''">
+                                <a href="#"><i class="fa" data-bind="css: tooltipsEnabled() == true ? 'fa-check-square' : 'fa-square'"></i>DestinyDB Tooltips</a>
+                            </li>
+                            <li data-bind="fastclick: toggleDestinyDbMode, css: destinyDbMode() == true ? 'active' : ''">
+                                <a href="#"><i class="fa" data-bind="css: destinyDbMode() == true ? 'fa-check-square' : 'fa-square'"></i>DestinyDB Mode</a>
+                            </li>
+                            <li data-bind="fastclick: toggleTransferStacks, css: autoTransferStacks() == true ? 'active' : ''">
+                                <a href="#"><i class="fa" data-bind="css: autoTransferStacks() == true ? 'fa-check-square' : 'fa-square'"></i>Auto Transfer Stacks</a>
+                            </li>
+                            <li data-bind="fastclick: togglePadBucketHeight, css: padBucketHeight() == true ? 'active' : ''">
+                                <a href="#"><i class="fa" data-bind="css: padBucketHeight() == true ? 'fa-check-square' : 'fa-square'"></i>Auto Pad Height</a>
+                            </li>
+                            <li class="divider"></li>
+                            <li><a href="#" data-bind="fastclick: openBungieWindow('Psnid')">PSN Login</a></li>
+                            <li><a href="#" data-bind="fastclick: openBungieWindow('Xuid')">Live Login</a></li>
+                            <li data-bind="visible: hasBothAccounts(), css: activeUser() && activeUser().activeSystem() == 'XBL' ? 'active' : ''"><a href="#" data-bind="fastclick: useXboxAccount">Use Xbox Account</a></li>
+                            <li data-bind="visible: hasBothAccounts(), css: activeUser() && activeUser().activeSystem() == 'PSN' ? 'active' : ''"><a href="#" data-bind="fastclick: usePlaystationAccount">Use Playstation Account</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="navbar-form navbar-right">
+                    <div class="input-group spinner">
+                        <span class="input-group-addon">Refresh (secs)</span>
+                        <input type="text" class="form-control" placeholder="Refresh (in seconds)" title="Refresh Automatically (in seconds)" data-bind="value: refreshSeconds">
+                        <div class="input-group-btn-vertical">
+                            <button class="btn btn-default" type="button" data-bind="click: incrementSeconds"><i class="fa fa-caret-up"></i></button>
+                            <button class="btn btn-default" type="button" data-bind="click: decrementSeconds"><i class="fa fa-caret-down"></i></button>
+                        </div>
+                    </div>
+                    <input class="form-control" placeholder="Search" size="9" type="text" data-bind="value: searchKeyword">
+                </form>
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Loadouts <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <!-- ko foreach: { data: sortedLoadouts, as: 'loadout' } -->
+                            <li data-bind="fastclick: setActive">
+                                <a data-bind="text: loadout.name" href="#"></a>
+                            </li>
+                            <!--/ko  -->
+                            <li class="divider"></li>
+                            <li data-bind="fastclick: createLoadout"><a href="#"><i class="fa fa-plus"></i>Create</a></li>
+                            <li data-bind="fastclick: cancelLoadout"><a href="#"><i class="fa fa-times"></i>Cancel</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">View <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li class="menu-opt" data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', fastclick: setView" value="0">
+                                <a href="#"><i class="fa" data-bind="css: activeView() == 0 ? 'fa-check-square' : 'fa-square'"></i>All</a>
+                            </li>
+                            <li data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', fastclick: setView" value="1">
+                                <a href="#"><i class="fa" data-bind="css: activeView() == 1 ? 'fa-check-square' : 'fa-square'"></i>Weapons</a>
+                            </li>
+                            <li data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', fastclick: setView" value="2">
+                                <a href="#"><i class="fa" data-bind="css: activeView() == 2 ? 'fa-check-square' : 'fa-square'"></i>Armor</a>
+                            </li>
+                            <li data-bind="css: activeView() == $($element).attr('value') ? 'active' : '', fastclick: setView" value="3">
+                                <a href="#"><i class="fa" data-bind="css: activeView() == 3 ? 'fa-check-square' : 'fa-square'"></i>General</a>
+                            </li>
+							<li class="divider"></li>
+							<li><a href="#" data-bind="fastclick: viewOptions">View Options</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Set <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li data-bind="css: setFilter().length == 0 ? 'active' : '', fastclick: setSetFilter" value="All">
+                                <a href="#"><i class="fa" data-bind="css: setFilter().length == 0 ? 'fa-check-square' : 'fa-square'"></i>All</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.vaultWeapons ? 'active' : '', fastclick: setSetFilter" value="vaultWeapons">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.vaultWeapons ? 'fa-check-square' : 'fa-square'"></i>VoG Weapons</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.vaultArmor ? 'active' : '', fastclick: setSetFilter" value="vaultArmor">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.vaultArmor ? 'fa-check-square' : 'fa-square'"></i>VoG Armor</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.crotaWeapons ? 'active' : '', fastclick: setSetFilter" value="crotaWeapons">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.crotaWeapons ? 'fa-check-square' : 'fa-square'"></i>CE End Weapons</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.crotaArmor ? 'active' : '', fastclick: setSetFilter" value="crotaArmor">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.crotaArmor ? 'fa-check-square' : 'fa-square'"></i>CE End Armor</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.tooWeapons ? 'active' : '', fastclick: setSetFilter" value="tooWeapons">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.tooWeapons ? 'fa-check-square' : 'fa-square'"></i>ToO Weapons</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.tooArmor ? 'active' : '', fastclick: setSetFilter" value="tooArmor">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.tooArmor ? 'fa-check-square' : 'fa-square'"></i>ToO Armor</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.poeWeapons ? 'active' : '', fastclick: setSetFilter" value="poeWeapons">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.poeWeapons ? 'fa-check-square' : 'fa-square'"></i>PoE Weapons</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.poeArmor ? 'active' : '', fastclick: setSetFilter" value="poeArmor">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.poeArmor ? 'fa-check-square' : 'fa-square'"></i>PoE Armor</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.queensWeapons ? 'active' : '', fastclick: setSetFilter" value="queensWeapons">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.queensWeapons ? 'fa-check-square' : 'fa-square'"></i>QW Weapons</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.ironWeapons ? 'active' : '', fastclick: setSetFilter" value="ironWeapons">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.ironWeapons ? 'fa-check-square' : 'fa-square'"></i>Iron Banner Weapons</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.ironArmor ? 'active' : '', fastclick: setSetFilter" value="ironArmor">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.ironArmor ? 'fa-check-square' : 'fa-square'"></i>Iron Banner Armor</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.exoticWeapons ? 'active' : '', fastclick: setSetFilter" value="exoticWeapons">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.exoticWeapons ? 'fa-check-square' : 'fa-square'"></i>Exotic Weapons</a>
+                            </li>
+                            <li data-bind="css: setFilter() == _collections.exoticArmor ? 'active' : '', fastclick: setSetFilter" value="exoticArmor">
+                                <a href="#"><i class="fa" data-bind="css: setFilter() == _collections.exoticArmor ? 'fa-check-square' : 'fa-square'"></i>Exotic Armor</a>
+                            </li>
+                            <li class="divider"></li>
+                            <li data-bind="css: showMissing() ? 'active' : '', fastclick: toggleShowMissing">
+                                <a href="#"><i class="fa" data-bind="css: showMissing() ? 'fa-check-square' : 'fa-square'"></i>Show Missing Items</a></li>
+                            <li data-bind="css: showDuplicate() ? 'active' : '', fastclick: toggleDuplicates">
+                                <a href="#"><i class="fa" data-bind="css: showDuplicate() ? 'fa-check-square' : 'fa-square'"></i>Show Duplicate Items</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Tier <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="0">
+                                <a href="#"><i class="fa" data-bind="css: tierFilter() == 0 ? 'fa-check-square' : 'fa-square'"></i>All</a>
+                            </li>
+                            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="2">
+                                <a href="#"><i class="fa" data-bind="css: tierFilter() == 2 ? 'fa-check-square' : 'fa-square'"></i>Common</a>
+                            </li>
+                            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="3">
+                                <a href="#"><i class="fa" data-bind="css: tierFilter() == 3 ? 'fa-check-square' : 'fa-square'"></i>Uncommon</a>
+                            </li>
+                            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="4">
+                                <a href="#"><i class="fa" data-bind="css: tierFilter() == 4 ? 'fa-check-square' : 'fa-square'"></i>Rare</a>
+                            </li>
+                            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="5">
+                                <a href="#"><i class="fa" data-bind="css: tierFilter() == 5 ? 'fa-check-square' : 'fa-square'"></i>Legendary</a>
+                            </li>
+                            <li data-bind="css: tierFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTierFilter" value="6">
+                                <a href="#"><i class="fa" data-bind="css: tierFilter() == 6 ? 'fa-check-square' : 'fa-square'"></i>Exotic</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Progress <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', fastclick: setProgressFilter" value="0">
+                                <a href="#"><i class="fa" data-bind="css: progressFilter() == 0 ? 'fa-check-square' : 'fa-square'"></i>All</a>
+                            </li>
+                            <li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', fastclick: setProgressFilter" value="1">
+                                <a href="#"><i class="fa" data-bind="css: progressFilter() == 1 ? 'fa-check-square' : 'fa-square'"></i>Missing XP</a>
+                            </li>
+                            <li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', fastclick: setProgressFilter" value="2">
+                                <a href="#"><i class="fa" data-bind="css: progressFilter() == 2 ? 'fa-check-square' : 'fa-square'"></i>Full XP</a>
+                            </li>
+                            <li data-bind="css: progressFilter() == $($element).attr('value') ? 'active' : '', fastclick: setProgressFilter" value="3">
+                                <a href="#"><i class="fa" data-bind="css: progressFilter() == 3 ? 'fa-check-square' : 'fa-square'"></i>Maxed</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Damage <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', fastclick: setDmgFilter" value="Kinetic">
+                                <a href="#"><i class="fa" data-bind="css: dmgFilter().indexOf('Kinetic') > -1 ? 'fa-check-square' : 'fa-square'"></i><img src="assets/kinetic.png" class="icon">Kinetic (None)</a>
+                            </li>
+                            <li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', fastclick: setDmgFilter" value="Solar">
+                                <a href="#"><i class="fa" data-bind="css: dmgFilter().indexOf('Solar') > -1 ? 'fa-check-square' : 'fa-square'"></i><img src="assets/solar.png" class="icon">Solar</a>
+                            </li>
+                            <li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', fastclick: setDmgFilter" value="Arc">
+                                <a href="#"><i class="fa" data-bind="css: dmgFilter().indexOf('Arc') > -1 ? 'fa-check-square' : 'fa-square'"></i><img src="assets/arc.png" class="icon">Arc</a>
+                            </li>
+                            <li data-bind="css: dmgFilter().indexOf($($element).attr('value')) > -1 ? 'active' : '', fastclick: setDmgFilter" value="Void">
+                                <a href="#"><i class="fa" data-bind="css: dmgFilter().indexOf('Void') > -1 ? 'fa-check-square' : 'fa-square'"></i><img src="assets/void.png" class="icon">Void</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Weapons <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li data-bind="css: typeFilter() == $($element).attr('value') ? 'active' : '', fastclick: setTypeFilter" value="0">
+                                <a href="#"><i class="fa" data-bind="css: typeFilter() == 0 ? 'fa-check-square' : 'fa-square'"></i>All</a>
+                            </li>
+                            <!-- ko foreach: { data: weaponTypes, as: 'weaponType' } -->
+                            <li data-bind="css: $parent.typeFilter() == weaponType.type ? 'active' : '', fastclick: $parent.setTypeFilter, value: weaponType.type" value="0">
+                                <a href="#"><i class="fa" data-bind="css: $parent.typeFilter() == weaponType.type ? 'fa-check-square' : 'fa-square'"></i><span data-bind="text: weaponType.name">All</span></a>
+                            </li>
+                            <!--/ko  -->
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>

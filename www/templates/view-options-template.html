@@ -1,0 +1,61 @@
+	<div class="container well bs-component" style="display:none;" id="viewOptions">
+		<div class="container-fluid">
+			<form class="form-horizontal">
+			  <fieldset>
+				    <legend>View Options</legend>
+					<div class="form-group">
+				      <label class="col-xs-3 control-label"># of Columns</label>
+				      <div class="col-xs-9">
+				        <div class="row">
+							<div class="col-xs-1">XS</div>
+							<div class="btn-group col-xs-11">
+								<input type="Button" class="btn" value="1" data-bind="click: setColumns('xs', $element), css: btnActive('xs', $element)">
+								<input type="Button" class="btn" value="2" data-bind="click: setColumns('xs', $element), css: btnActive('xs', $element)">
+								<input type="Button" class="btn" value="3" data-bind="click: setColumns('xs', $element), css: btnActive('xs', $element)">
+								<input type="Button" class="btn" value="4" data-bind="click: setColumns('xs', $element), css: btnActive('xs', $element)">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-1">SM</div>
+							<div class="btn-group col-xs-11">
+								<input type="Button" class="btn" value="1" data-bind="click: setColumns('sm', $element), css: btnActive('sm', $element)">
+								<input type="Button" class="btn" value="2" data-bind="click: setColumns('sm', $element), css: btnActive('sm', $element)">
+								<input type="Button" class="btn" value="3" data-bind="click: setColumns('sm', $element), css: btnActive('sm', $element)">
+								<input type="Button" class="btn" value="4" data-bind="click: setColumns('sm', $element), css: btnActive('sm', $element)">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-1">MD</div>
+							<div class="btn-group col-xs-11">
+								<input type="Button" class="btn" value="1" data-bind="click: setColumns('md', $element), css: btnActive('md', $element)">
+								<input type="Button" class="btn" value="2" data-bind="click: setColumns('md', $element), css: btnActive('md', $element)">
+								<input type="Button" class="btn" value="3" data-bind="click: setColumns('md', $element), css: btnActive('md', $element)">
+								<input type="Button" class="btn" value="4" data-bind="click: setColumns('md', $element), css: btnActive('md', $element)">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-1">LG</div>
+							<div class="btn-group col-xs-11">
+								<input type="Button" class="btn" value="1" data-bind="click: setColumns('lg', $element), css: btnActive('lg', $element)">
+								<input type="Button" class="btn" value="2" data-bind="click: setColumns('lg', $element), css: btnActive('lg', $element)">
+								<input type="Button" class="btn" value="3" data-bind="click: setColumns('lg', $element), css: btnActive('lg', $element)">
+								<input type="Button" class="btn" value="4" data-bind="click: setColumns('lg', $element), css: btnActive('lg', $element)">
+							</div>
+						</div>
+				      </div>
+				    </div>
+					<div class="form-group">
+						<label class="col-xs-3 control-label">Vault Position</label>
+						<div class="col-xs-9">
+							<label>
+								<input type="Checkbox" data-bind="checked: isVaultAt(0), click: setVaultTo(0)"> First/Left
+							</label>
+							<label>
+								<input type="Checkbox" data-bind="checked: isVaultAt($root.characters().length), click: setVaultTo($root.characters().length)"> Last/Right
+							</label>
+						</div>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+	</div>

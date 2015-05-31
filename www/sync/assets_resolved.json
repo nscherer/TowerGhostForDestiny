@@ -1,0 +1,44 @@
+{
+  "css": [
+    "http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css",
+    "css/bootstrap.min.css",
+    "css/style.css",
+    "css/style_new.css",
+    "css/tooltip.css"
+  ],
+  "templates": [
+    "templates/about-template.html",
+    "templates/character-container-template.html",
+    "templates/controls-template.html",
+    "templates/help-template.html",
+    "templates/loadout-create-template.html",
+    "templates/navbar-template.html",
+    "templates/sections-template.html",
+    "templates/view-options-template.html",
+    "templates/whatsnew-template.html"
+  ],
+  "js": [
+    "data/itemDefs.js",
+    "data/perkDefs.js",
+    "data/raceDefs.js",
+    "data/statDefs.js",
+    "data/talentGridDefs.js",
+    "data/tgdDefs.js",
+    "scripts/dependencies/modernizr.custom.js",
+    "scripts/dependencies/jquery-ui.js",
+    "scripts/dependencies/bootstrap.js",
+    "scripts/dependencies/bootstrap-dialog.js",
+    "scripts/dependencies/fastclick.js",
+    "scripts/dependencies/hammer.js",
+    "scripts/dependencies/jquery.toaster.js",
+    "scripts/dependencies/lzstring.min.js",
+    "scripts/loadouts.js",
+    "scripts/Profile.js",
+    "scripts/Item.js",
+    "scripts/app.js",
+    "scripts/bungie.js",
+    "scripts/destinyexotics.js",
+    "scripts/ga.js",
+    "scripts/tooltips.min.js"
+  ]
+}

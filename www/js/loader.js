@@ -1,13 +1,12 @@
-var tgd = {};
 window.ua = navigator.userAgent;
 window.isMobile = (/ios|iphone|ipod|ipad|android|iemobile/i.test(ua));
 
 tgd.locale = "en";
 
 tgd.defaults = {
-	www_version: "",
-	itemDefs_version: "",
-	icons_version: tgd.version
+    www_local: tgd.version,
+    itemDefs_local: tgd.version,
+    icon_local: tgd.version
 };
 
 tgd.getStoredValue = function(key) {
@@ -33,98 +32,118 @@ tgd.StoreObj = function(key, compare, writeCallback) {
     }
 }
 
-var loader = new(function(){
-	var self = this;
-	var api_url = "http://towerghostfordestiny.com";
-	this.init = function(){
-	
-		tgd.versions = {
-		    local: {
-				www: ko.computed(new tgd.StoreObj("www_version")),
-				itemDefs: ko.computed(new tgd.StoreObj("itemDefs_version")),
-				icons: ko.computed(new tgd.StoreObj("icons_version"))
-		    }
-		}
-		
-		$.ajax({
-			url: api_url + "/versions.cfm",
-			success: function(versions){
-				tgd.versions.remote = versions;
-				self.checkVersions();
-			},			
-			error: function(){
-				if (_.isEmpty(tgd.versions.www)){
-					/* sorry the server is down the app wont load at all */
-				}
-				else {
-					/* keep loading */
-				}				
+
+var loader = new(function() {
+    var self = this;
+    var api_url = "http://towerghostfordestiny.com";
+
+	this.loadingLocal = false;
+    this.init = function() {
+        /* I think the best basic premise I can use for loading an app dynamically
+			if remoteApp is cached load it first
+			else if remoteApp is not cached automatically load localApp, remoteApp after			
+		 */
+        tgd.versions = {
+            local: {
+                www: ko.computed(new tgd.StoreObj("www_local")),
+                itemDefs: ko.computed(new tgd.StoreObj("itemDefs_local")),
+                icons: ko.computed(new tgd.StoreObj("icons_local"))
+            }
+        }
+
+        var wwwSync = ContentSync.sync({
+            src: api_url + '/www.zip',
+            id: 'www',
+            copyCordovaAssets: false,
+            type: "local"
+        });
+
+        wwwSync.on('complete', function(data) {
+            console.log('complete');
+            console.log(data);
+            self.processAssets(data.localPath);
+        });
+
+        wwwSync.on('error', function(data) {
+            console.log('error');
+            console.log(data);
+        });
+
+        wwwSync.on('progress', function(data) {
+            console.log('progress');
+            if (data.status == 1){
+				self.loadingLocal = true;
+				self.processAssets("sync/");
 			}
-		});
-	}
-	
-	var count = 0, wwwPath = "";
-	this.loadApp = function(type, path){
-		console.log(type + " loaded with " + path);
-		count++;
-		if (type == "www"){
-			wwwPath = path;
-		}
-		if (count == 3){
-			if (wwwPath){
-				document.location = wwwPath + '/index.html';
-			}
-			else {
-				BootstrapDialog.alert("Error loading app");
-			}			
-		}
-	}
-	
-	this.checkVersions = function(){
-		/* on initial load built in version will be blank so syncType will be replace either way data is missing */
-		var wwwSyncType = ( tgd.versions.local.www() == tgd.versions.remote.www ) ? "local" : "replace",
-			itemDefsSyncType = ( tgd.versions.local.www() == tgd.versions.remote.itemDefs ) ? "local" : "replace";
-			
-		console.log("syncing with " + wwwSyncType);	
-		
-		var wwwSync = ContentSync.sync({ src: api_url + '/www.zip', id: 'www', copyCordovaAssets: false, type:  wwwSyncType });	
-		wwwSync.on('complete', function(data) { 
-			console.log('complete'); 
-			console.log(data);
-			console.log(data.localPath);
-			tgd.versions.local.www(tgd.versions.remote.www);
-			self.loadApp('www',data.localPath);
-		});
-		
-		var itemDefsSync = ContentSync.sync({ src: api_url + '/itemDefs.zip', id: 'itemDefs_' + tgd.locale, copyCordovaAssets: false, type:  itemDefsSyncType });	
-		itemDefsSync.on('complete', function(data) { 
-			console.log('complete'); 
-			console.log(data);
-			console.log(data.localPath);
-			tgd.versions.local.itemDefs(tgd.versions.remote.itemDefs);
-			self.loadApp('itemDefs',data.localPath);
-		});
-		
-		/* save a contentsync call here because all the icons are built in */
-		if (tgd.versions.local.icons() !== tgd.versions.remote.icons){
-			var iconsSync = ContentSync.sync({ src: api_url + '/' + tgd.versions.remote.icon + '/icons.zip', id: 'icons', copyCordovaAssets: false, type: 'merge' });	
-			iconsSync.on('complete', function(data) { 
-				console.log('complete'); 
-				console.log(data);
-				console.log(data.localPath);
-				tgd.versions.local.icons(tgd.versions.remote.icons);
-				self.loadApp('icons',data.localPath);
-			});
-		}
-		else {
-			self.loadApp('icons');
-		}
-	}	
+        });
+    }
+
+    this.processAssets = function(path) {
+		console.log("loading manifest from: " + (path + "assets_resolved.json"));
+        $.ajax({
+            url: path + "assets_resolved.json",
+            success: function(assets) {
+                self.assets = JSON.parse(assets);
+                console.log(self.assets);
+                self.addCss();
+                self.addJs();
+                self.addTemplates();
+                setTimeout(function() {
+                    app.init()
+                }, 1000);
+            }
+        });
+    }
+
+    this.addTemplates = function() {
+        $.each(self.assets.templates, function(index, file) {
+            self.insertHtmlFile(file);
+        });
+    }
+
+    this.addCss = function() {
+        $.each(self.assets.css, function(index, file) {
+            self.insertCssFile(file);
+        });
+    }
+
+    this.addJs = function() {
+        $.each(self.assets.js, function(index, file) {
+            self.insertJsFile(file);
+        });
+    }
+
+    this.insertHtmlFile = function(filename) {
+        $.ajax({
+            url: filename,
+            success: function(template) {
+                //console.log(filename + " templated added " + template.length);
+                $("#templates").append(template);
+            }
+        });
+    }
+
+    this.insertJsFile = function(filename) {
+        //console.log("adding js file " + filename);
+        var fileref = document.createElement('script');
+        fileref.setAttribute("type", "text/javascript");
+        fileref.setAttribute("src", filename);
+        document.getElementsByTagName("head")[0].appendChild(fileref);
+    }
+
+    this.insertCssFile = function(filename) {
+       // console.log("adding css file " + filename);
+        var fileref = document.createElement("link");
+        fileref.setAttribute("rel", "stylesheet");
+        fileref.setAttribute("type", "text/css");
+        fileref.setAttribute("href", filename);
+        document.getElementsByTagName("head")[0].appendChild(fileref);
+    }
 });
 
 
 if (isMobile) {
-	document.addEventListener('deviceready', loader.init, false);
+    document.addEventListener('deviceready', loader.init, false);
 } else {
     $(document).ready(loader.init);
 }
