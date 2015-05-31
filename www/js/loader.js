@@ -196,7 +196,7 @@ var loader = new(function() {
     }
 
     this.addJs = function(basePath) {
-        self.assets.loaded_js = $.clone(self.assets.js, true);
+        self.assets.loaded_js = self.assets.js;
         $.each(self.assets.js, function(index, file) {
             self.insertJsFile(basePath + file);
         });
