@@ -65,6 +65,7 @@ var loader = new(function(){
 	
 	var count = 0, wwwPath = "";
 	this.loadApp = function(type, path){
+		console.log(type + " loaded with " + path);
 		count++;
 		if (type == "www"){
 			wwwPath = path;
@@ -84,6 +85,8 @@ var loader = new(function(){
 		var wwwSyncType = ( tgd.versions.local.www() == tgd.versions.remote.www ) ? "local" : "replace",
 			itemDefsSyncType = ( tgd.versions.local.www() == tgd.versions.remote.itemDefs ) ? "local" : "replace";
 			
+		console.log("syncing with " + wwwSyncType);	
+		
 		var wwwSync = ContentSync.sync({ src: api_url + '/www.zip', id: 'www', copyCordovaAssets: false, type:  wwwSyncType });	
 		wwwSync.on('complete', function(data) { 
 			console.log('complete'); 
