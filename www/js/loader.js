@@ -179,6 +179,7 @@ var loader = new(function() {
 	self.jsFiles = 0;
 	this.loadTGD = function(){
 		self.jsFiles--;
+		console.log("jsFiles left to load " + self.jsFiles);
 		if (self.jsFiles == 0){
 			app.init();
 		}
@@ -219,8 +220,12 @@ var loader = new(function() {
         fileref.setAttribute("type", "text/javascript");
         fileref.setAttribute("src", filename);
 		fileref.onload = function(){
+			console.log("file loaded " + filename);
 			self.loadTGD();
 		};
+		fileref.onerror = function(){
+			console.log("error loading " + filename);
+		}
         document.getElementsByTagName("head")[0].appendChild(fileref);
     }
 

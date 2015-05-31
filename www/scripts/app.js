@@ -1285,6 +1285,7 @@ var app = new(function() {
 	}
 	
     this.init = function() {
+		BootstrapDialog.defaultOptions.nl2br = false;
         if (_.isUndefined(window._itemDefs)) {
             return BootstrapDialog.alert("Could not load item definitions, please report the issue to my Github and make sure your font is set to English.");
         }
@@ -1359,7 +1360,6 @@ window.zam_tooltips = {
     renderCallback: app.renderCallback,
     isEnabled: app.tooltipsEnabled()
 };
-BootstrapDialog.defaultOptions.nl2br = false;
 
 if (isMobile) {
     window.addEventListener("statusTap", function() {
