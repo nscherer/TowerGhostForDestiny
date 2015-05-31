@@ -88,13 +88,6 @@ var loader = new(function() {
                 tgd.versions.remote = JSON.parse(versions);
                 console.log(tgd.versions.remote.www);
                 self.checkVersions();
-            },
-            error: function() {
-                if (_.isEmpty(tgd.versions.www)) {
-                    /* sorry the server is down the app wont load at all */
-                } else {
-                    /* keep loading */
-                }
             }
         });
     }
@@ -102,6 +95,7 @@ var loader = new(function() {
     var count = 0,
         wwwPath = "";
     this.loadApp = function(type, path) {
+		console.log("results from checkVersion: " + type + " has new content " + path );
         count++;
         if (type == "www") {
             wwwPath = path;
@@ -113,8 +107,9 @@ var loader = new(function() {
     }
 
     this.checkVersions = function() {
+		count = 0;
         if (tgd.versions.local.www() !== tgd.versions.remote.www) {
-            console.log("going to sync www, new version available");
+            console.log(tgd.versions.local.www() + " going to sync www, new version available " + tgd.versions.remote.www);
             var wwwSync = ContentSync.sync({
                 src: api_url + '/www.zip',
                 id: 'www',
@@ -130,7 +125,7 @@ var loader = new(function() {
             self.loadApp('www');
         }
         if (tgd.versions.local.itemDefs() !== tgd.versions.remote.itemDefs) {
-            console.log("going to sync itemDefs, new version available");
+            console.log(tgd.versions.local.itemDefs() + " going to sync itemDefs, new version available " + tgd.versions.remote.itemDefs);
             var itemDefsSync = ContentSync.sync({
                 src: api_url + '/itemDefs.zip',
                 id: 'itemDefs_' + tgd.locale,
@@ -147,7 +142,7 @@ var loader = new(function() {
         }
         /* save a contentsync call here because all the icons are built in */
         if (tgd.versions.local.icons() !== tgd.versions.remote.icons) {
-            console.log("going to sync icons, new version available");
+            console.log(tgd.versions.local.icons() + " going to sync icons, new version available " + tgd.versions.remote.icons);
             var iconsSync = ContentSync.sync({
                 src: api_url + '/' + tgd.versions.remote.icon + '/icons.zip',
                 id: 'icons',
