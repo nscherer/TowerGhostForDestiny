@@ -58,25 +58,27 @@ var loader = new(function() {
             type: "local"
         });
 
-        /* this works perfectly
+        /* this works perfectly */
 		wwwSync.on('complete', function(data) {
-            console.log('complete');
+            console.log('complete ' + self.loadingLocal);
             console.log(data);
-            self.processAssets(data.localPath + "/");
-        });*/
+			if (self.loadingLocal == false){
+	            self.processAssets(data.localPath + "/");
+			}
+        });
 
         self.wwwSync.on('error', function(data) {
             console.log('error');
             console.log(data);
         });
 
-        /*self.wwwSync.on('progress', function(data) {
+        self.wwwSync.on('progress', function(data) {
             console.log('progress');
-            if (data.status == 1){
+            if (data.status == 1 && self.loadingLocal == false){
 				self.loadingLocal = true;
 				self.processAssets("");
 			}
-        });*/
+        });
     }
 
     this.processAssets = function(path) {
