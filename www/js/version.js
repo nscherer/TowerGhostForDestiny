@@ -1,2 +1,2 @@
 var tgd = {};
-tgd.version = "2.7.0";
+tgd.version = "2.6.9";

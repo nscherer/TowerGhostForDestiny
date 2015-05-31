@@ -12,7 +12,7 @@
                     <div class="inventory">
                         <div class="items" data-type="item">
                             <div data-bind="visible: $root.activeView() == 1 || $root.activeView() == 0">
-                                <div class="title" data-bind="visible: $root.searchKeyword() == ''"><strong>Weapons</strong> (<span data-bind="text: character.weapons().length"></span>/<span data-bind="text: character.id == 'Vault' ? 36 : 30"></span>)</div>
+                                <div class="title" data-bind="visible: $root.searchKeyword() == ''"><strong>WEPS</strong> (<span data-bind="text: character.weapons().length"></span>/<span data-bind="text: character.id == 'Vault' ? 36 : 30"></span>)</div>
                                 <div class="sections" data-bind="template: { name: 'sections-template', foreach: ['Primary','Special','Heavy'], as: 'bucketType' }"></div>
                             </div>
                             <div style="display:none" data-bind="visible: $root.activeView() == 2 || $root.activeView() == 0">
