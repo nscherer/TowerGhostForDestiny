@@ -6,7 +6,7 @@ tgd.locale = "en";
 tgd.defaults = {
     www_local: tgd.version,
     itemDefs_local: tgd.version,
-    icon_local: tgd.version
+    icons_local: tgd.version
 };
 
 tgd.getStoredValue = function(key) {
@@ -92,16 +92,15 @@ var loader = new(function() {
         });
     }
 
-    var count = 0,
-        wwwPath = "";
+    var count = 0, newContent = false;
     this.loadApp = function(type, path) {
 		console.log("results from checkVersion: " + type + " has new content " + path );
         count++;
-        if (type == "www") {
-            wwwPath = path;
+        if (path) {
+            newContent = true;
         }
-        if (count == 3 && wwwPath) {
-            BootstrapDialog.alert("Restarting app, it has been updated to " + tgd.versions.local.www());
+        if (count == 3 && newContent == true) {
+            alert("Restarting app, it has been updated to " + tgd.versions.local.www());
 			location.reload();
         }
     }

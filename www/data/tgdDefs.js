@@ -50,7 +50,7 @@ tgd.DestinyBucketTypes = {
 tgd.DestinyArmorPieces = [ "Helmet", "Gauntlet", "Chest", "Boots", "Class Items" ];
 tgd.DestinyWeaponPieces = [ "Primary","Special","Heavy" ];
 	
-tgd.defaults = {
+tgd.defaults = _.extend(tgd.defaults,{
 	searchKeyword: "",
 	doRefresh: isMobile ? false : true,
 	refreshSeconds: 300,
@@ -71,7 +71,7 @@ tgd.defaults = {
 	smColumn: 6,
 	mdColumn: 4,
 	lgColumn: 3
-};
+});
 
 tgd.perksTemplate = '<div class="destt-talent">' +
 	'<% perks.forEach(function(perk){ %>' +
