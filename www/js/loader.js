@@ -90,7 +90,7 @@ var loader = new(function() {
             newContent = true;
         }
         if (count == 3 && newContent == true) {
-            if (confirm("There is a new version available would you like to restart now?"){
+            if (confirm("There is a new version available would you like to restart now?")){
 				location.reload();
 			}
         }
