@@ -51,25 +51,26 @@ var loader = new(function() {
             }
         }
 
-        var wwwSync = ContentSync.sync({
+        self.wwwSync = ContentSync.sync({
             src: api_url + '/www.zip',
             id: 'www',
             copyCordovaAssets: false,
             type: "local"
         });
 
-        wwwSync.on('complete', function(data) {
+        /* this works perfectly
+		wwwSync.on('complete', function(data) {
             console.log('complete');
             console.log(data);
             self.processAssets(data.localPath + "/");
-        });
+        });*/
 
-        wwwSync.on('error', function(data) {
+        self.wwwSync.on('error', function(data) {
             console.log('error');
             console.log(data);
         });
 
-        wwwSync.on('progress', function(data) {
+        self.wwwSync.on('progress', function(data) {
             console.log('progress');
             if (data.status == 1){
 				self.loadingLocal = true;
