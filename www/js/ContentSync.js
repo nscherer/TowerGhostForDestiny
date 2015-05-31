@@ -7,7 +7,7 @@ SyncTask = new(function() {
 		/* 1 min to load the www.zip */
 		setTimeout(function(){		
 	        var event = jQuery.Event("complete");
-	        event.localPath = "sync/";
+	        event.localPath = "";
 	        syncTask.trigger(event);
 		}, 1000 * 60);
 		

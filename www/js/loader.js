@@ -73,15 +73,15 @@ var loader = new(function() {
             console.log('progress');
             if (data.status == 1){
 				self.loadingLocal = true;
-				self.processAssets("sync/");
+				self.processAssets("");
 			}
         });
     }
 
     this.processAssets = function(path) {
-		console.log("loading manifest from: " + (path + "assets_resolved.json"));
+		console.log("loading manifest from: " + (path + "sync/assets_resolved.json"));
         $.ajax({
-            url: path + "assets_resolved.json",
+            url: path + "sync/assets_resolved.json",
             success: function(assets) {
                 self.assets = JSON.parse(assets);
                 console.log(self.assets);
