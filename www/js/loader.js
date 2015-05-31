@@ -85,7 +85,7 @@ var loader = new(function() {
             url: api_url + "/versions.cfm",
             success: function(versions) {
                 console.log("latest versions: " + versions);
-                tgd.versions.remote = versions;
+                tgd.versions.remote = JSON.parse(versions);
                 console.log(tgd.versions.remote.www);
                 self.checkVersions();
             },
@@ -107,7 +107,8 @@ var loader = new(function() {
             wwwPath = path;
         }
         if (count == 3 && wwwPath) {
-            BootstrapDialog.alert("Please restart the app to complete the update");
+            BootstrapDialog.alert("Restarting app, it has been updated to " + tgd.versions.local.www());
+			location.reload();
         }
     }
 
