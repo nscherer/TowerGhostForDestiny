@@ -171,14 +171,19 @@ var loader = new(function() {
                 console.log(self.assets);
                 self.addCss();
                 self.addJs();
-                self.addTemplates();
-                setTimeout(function() {
-                    app.init()
-                }, 1000);
+                self.addTemplates();               
             }
         });
     }
 
+	self.jsFiles = 0;
+	this.loadTGD = function(){
+		self.jsFiles--;
+		if (self.jsFiles == 0){
+			app.init();
+		}
+	}
+	
     this.addTemplates = function() {
         $.each(self.assets.templates, function(index, file) {
             self.insertHtmlFile(file);
@@ -192,6 +197,7 @@ var loader = new(function() {
     }
 
     this.addJs = function() {
+		self.jsFiles = self.assets.js.length;
         $.each(self.assets.js, function(index, file) {
             self.insertJsFile(file);
         });
@@ -208,10 +214,13 @@ var loader = new(function() {
     }
 
     this.insertJsFile = function(filename) {
-        //console.log("adding js file " + filename);
+        console.log("adding js file " + filename);
         var fileref = document.createElement('script');
         fileref.setAttribute("type", "text/javascript");
         fileref.setAttribute("src", filename);
+		fileref.onload = function(){
+			self.loadTGD();
+		};
         document.getElementsByTagName("head")[0].appendChild(fileref);
     }
 

@@ -8,7 +8,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="#" data-bind="click: showVersion">OMG <span data-bind="visible: !isMobile"><span class="version">2.6.4</span></a>
-                <div class="quickScrollView" data-bind="foreach: { data: $root.orderedCharacters, as: 'avatar' }">
+                <div class="quickScrollView" data-bind="foreach: { data: $root.orderedCharacters, as: 'avatar' }, visible: $root.orderedCharacters().length > 0">
                     <div class="mobile-characters">
                         <img class="mobile-characters-image" data-bind="attr: {src : imgIcon, title: uniqueName}, css: id, scrollToView: false">
                     </div>
