@@ -70,13 +70,13 @@ var loader = new(function() {
             console.log(data);
         });
 
-        self.wwwSync.on('progress', function(data) {
+        /*self.wwwSync.on('progress', function(data) {
             console.log('progress');
             if (data.status == 1){
 				self.loadingLocal = true;
 				self.processAssets("");
 			}
-        });
+        });*/
     }
 
     this.processAssets = function(path) {
