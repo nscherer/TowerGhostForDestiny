@@ -3,8 +3,8 @@
 	"js": [ "data/*.js", "scripts/dependencies/modernizr.custom.js", 
 			"scripts/dependencies/jquery-ui.js", 
 			"scripts/dependencies/bootstrap.js", "scripts/dependencies/bootstrap-dialog.js",
-			"scripts/dependencies/*.js", "scripts/loadouts.js", "scripts/Profile.js", "scripts/Item.js",
-			"scripts/app.js", "scripts/*.js"
+			"scripts/dependencies/*.js", "scripts/version.js", "scripts/loadouts.js", "scripts/Profile.js", 
+			"scripts/Item.js", "scripts/app.js", "scripts/*.js"
 	], 
 	"templates": [
 		"templates/*.html"
