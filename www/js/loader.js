@@ -9,7 +9,7 @@ tgd.defaults = {
     www_local: tgd.version,
     itemDefs_local: tgd.version,
     icons_local: tgd.version,
-	loader_local: ""
+    loader_local: ""
 };
 
 tgd.getStoredValue = function(key) {
@@ -51,19 +51,19 @@ var loader = new(function() {
             local: {
                 isAppCached: true,
                 isDictionaryCached: true,
-				loader: ko.computed(new tgd.StoreObj("loader_local")),
+                loader: ko.computed(new tgd.StoreObj("loader_local")),
                 www: ko.computed(new tgd.StoreObj("www_local")),
                 itemDefs: ko.computed(new tgd.StoreObj("itemDefs_local")),
                 icons: ko.computed(new tgd.StoreObj("icons_local"))
             },
             remote: {}
         }
-		
-		if (tgd.native_loader == true && !_.isEmpty(tgd.versions.local.loader())){
-			tgd.native_loader = false;
-			var scriptTag = $('<script type="text/javascript"></script>').html( tgd.versions.local.loader() ).appendTo("head");
-			return;
-		}
+
+        if (tgd.native_loader == true && !_.isEmpty(tgd.versions.local.loader())) {
+            tgd.native_loader = false;
+            var scriptTag = $('<script type="text/javascript"></script>').html(tgd.versions.local.loader()).appendTo("head");
+            return;
+        }
 
         if (navigator && navigator.globalization && navigator.globalization.getPreferredLanguage) {
             console.log("getting device locale");
@@ -217,14 +217,14 @@ var loader = new(function() {
             url: path + filename,
             success: function(assets) {
                 self.assets = JSON.parse(assets);
-				if (path !== "" && self.assets.js.indexOf("loader.js") > -1){
-					$.ajax({
-						url: path + "/www/scripts/loader.js",
-						success: function(content){
-							tgd.versions.local.loader(content);
-						}
-					});
-				}
+                if (path !== "" && self.assets.js.indexOf("loader.js") > -1) {
+                    $.ajax({
+                        url: path + "/www/scripts/loader.js",
+                        success: function(content) {
+                            tgd.versions.local.loader(content);
+                        }
+                    });
+                }
                 self.addCss(path);
                 self.addJs(path);
                 self.addTemplates(path);

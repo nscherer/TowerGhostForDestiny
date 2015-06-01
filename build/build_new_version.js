@@ -2,6 +2,23 @@ var builderInfo = require("./package.json"),
 	fs = require("fs"),
 	_ = require("lodash");
 
+var projectPath = "../www/";	
+
+//show the whatsnew in the next version number
+var whatsNew = {
+	doShow: "false",
+	content: fs.readFileSync(projectPath + "whatsnew.html").toString("utf8")
+}
+
+if ( process.argv[2] ){
+	whatsNew.doShow = "true";
+}
+
+updateLoader = false
+if ( process.argv[3] ){
+	updateLoader = true;
+}
+
 var versionInfo = builderInfo.version;
 
 var resolvePaths = function(uri){
@@ -22,7 +39,7 @@ var resolvePaths = function(uri){
 		return uri;
 	}
 }
-var projectPath = "../www/";
+
 var relativePath = "";
 var assetsConfigFile = projectPath + "sync/assets.json";
 var assetsBuiltInConfigFile = projectPath + "sync/assets_builtin.json";
@@ -38,6 +55,11 @@ fs.writeFileSync(assetsBuiltInConfigFile, JSON.stringify(completedConfigFile, nu
 completedConfigFile.js = _.filter(completedConfigFile.js, function(file){
 	return file.indexOf("itemDefs") == -1;
 });
+if ( updateLoader ){
+	var backupLoaderPath = "scripts/loader.js", mainLoaderPath = "js/loader.js";
+	completedConfigFile.js.unshift(backupLoaderPath);
+	fs.writeFileSync(projectPath + backupLoaderPath, fs.readFileSync(projectPath + mainLoaderPath));
+}
 fs.writeFileSync(assetsUpdateConfigFile, JSON.stringify(completedConfigFile, null, 2));
 
 var chromeConfigFile = "../manifest.json";
@@ -65,15 +87,6 @@ var versionContent = fs.readFileSync(versionScript).toString("utf8");
 versionContent = versionContent.replace(/tgd.version = \"(.*)\";/g,'tgd.version = \"' + versionInfo + '\";');
 fs.writeFileSync(versionScript, versionContent);
 
-
-//show the whatsnew in the next version number
-var whatsNew = {
-	doShow: "false",
-	content: fs.readFileSync(projectPath + "whatsnew.html").toString("utf8")
-}
-if ( process.argv[2] ){
-	whatsNew.doShow = "true";
-}
 indexContent = indexContent.replace(/<div id=\"whatsnew\" style=\"display:none;\">(.*)<\/div>/g,'<div id="whatsnew" style="display:none;">' + escape(JSON.stringify(whatsNew)) + '</div>');
 indexContent = indexContent.replace(/<div id=\"showwhatsnew\" style=\"display:none;\">(.*)<\/div>/g,'<div id=\"showwhatsnew\" style=\"display:none;\">' + whatsNew.doShow + '</div>');
 
