@@ -71,8 +71,8 @@ tgd.defaults = _.extend(tgd.defaults,{
 	smColumn: 6,
 	mdColumn: 4,
 	lgColumn: 3,
-	locale: "en",
-	defsLocale: "en",
+	locale: tgd.device_locale,
+	defsLocale: tgd.device_locale,
 	vaultPos: 0,
 	itemDefs: "",
 	preferredSystem: "PSN"
