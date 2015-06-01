@@ -99,10 +99,11 @@ if ( fs.existsSync("mobileWorldContent_en.db") ){
 						_.extend(obj, patchData);
 					}
 					
+					var content = "_" + set.name + "="+JSON.stringify(obj);
 					/* App is built in English */
 					if (locale == "en"){
 						console.log(locale +' writing builtin file: ' + filename);
-						fs.writeFileSync(jsonPath + filename, "_" + set.name + "="+JSON.stringify(obj));
+						fs.writeFileSync(jsonPath + filename, content);
 					}
 					
 					var dataPath = basePath + locale + "/";
@@ -118,7 +119,7 @@ if ( fs.existsSync("mobileWorldContent_en.db") ){
 						var zip = new AdmZip();
 						
 						// add file directly 
-						zip.addFile("itemDefs.js", new Buffer(JSON.stringify(obj)));
+						zip.addFile("itemDefs.js", new Buffer(content));
 						// get everything as a buffer 
 						var willSendthis = zip.toBuffer();
 						// or write everything to disk 

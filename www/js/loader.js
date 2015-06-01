@@ -80,6 +80,7 @@ var loader = new(function() {
                 self.itemDefsSync.on('progress', function(data) {
                     if (data.status == 1 && self.loadingDictionary == false) {
                         tgd.versions.local.isDictionaryCached = false;
+						self.insertJsFile("/itemDefs.js");
                         self.loadingDictionary = true;
                     }
                 });
