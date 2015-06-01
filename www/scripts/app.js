@@ -1286,9 +1286,6 @@ var app = new(function() {
 	
     this.init = function() {
 		BootstrapDialog.defaultOptions.nl2br = false;
-        if (_.isUndefined(window._itemDefs)) {
-            return BootstrapDialog.alert("Could not load item definitions, please report the issue to my Github and make sure your font is set to English.");
-        }
 		$("#initalAppLoad").hide();
         tgd.perksTemplate = _.template(tgd.perksTemplate);
         tgd.duplicates = ko.observableArray().extend({
