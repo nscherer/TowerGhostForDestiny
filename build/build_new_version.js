@@ -25,7 +25,8 @@ var resolvePaths = function(uri){
 var projectPath = "../www/";
 var relativePath = "";
 var assetsConfigFile = projectPath + "sync/assets.json";
-var assetsResolvedConfigFile = projectPath + "sync/assets_resolved.json";
+var assetsBuiltInConfigFile = projectPath + "sync/assets_builtin.json";
+var assetsUpdateConfigFile = projectPath + "sync/assets_update.json";
 var assetsConfigFile = require(assetsConfigFile);
 var completedConfigFile = {
 	css: [], templates: [], js: []
@@ -33,7 +34,11 @@ var completedConfigFile = {
 completedConfigFile.css = _.unique(_.flatten(assetsConfigFile.css.map(resolvePaths)));
 completedConfigFile.js = _.unique(_.flatten(assetsConfigFile.js.map(resolvePaths)));
 completedConfigFile.templates = _.unique(_.flatten(assetsConfigFile.templates.map(resolvePaths)));
-fs.writeFileSync(assetsResolvedConfigFile, JSON.stringify(completedConfigFile, null, 2));
+fs.writeFileSync(assetsBuiltInConfigFile, JSON.stringify(completedConfigFile, null, 2));
+completedConfigFile.js = _.filter(completedConfigFile.js, function(file){
+	return file.indexOf("itemDefs") == -1;
+});
+fs.writeFileSync(assetsUpdateConfigFile, JSON.stringify(completedConfigFile, null, 2));
 
 var chromeConfigFile = "../manifest.json";
 var chromeConfig = require(chromeConfigFile);

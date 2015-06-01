@@ -1,7 +1,7 @@
 window.ua = navigator.userAgent;
 window.isMobile = (/ios|iphone|ipod|ipad|android|iemobile/i.test(ua));
 
-tgd.supportLanguages = ["en","es","it","de","ja","pt","fr"];
+tgd.supportLanguages = ["en", "es", "it", "de", "ja", "pt", "fr"];
 
 tgd.defaults = {
     www_local: tgd.version,
@@ -35,9 +35,9 @@ tgd.StoreObj = function(key, compare, writeCallback) {
 
 var loader = new(function() {
     var self = this;
-    var api_url = "http://towerghostfordestiny.com";
-	
-	this.loadingDictionary = false;
+    var api_url = "https://towerghostfordestiny.com";
+
+    this.loadingDictionary = false;
     this.loadingLocal = false;
     this.init = function() {
         /* I think the best basic premise I can use for loading an app dynamically
@@ -46,43 +46,43 @@ var loader = new(function() {
 		 */
         tgd.versions = {
             local: {
-				isAppCached: true,
-				isDictionaryCached: true,
+                isAppCached: true,
+                isDictionaryCached: true,
                 www: ko.computed(new tgd.StoreObj("www_local")),
                 itemDefs: ko.computed(new tgd.StoreObj("itemDefs_local")),
                 icons: ko.computed(new tgd.StoreObj("icons_local"))
             },
             remote: {}
         }
-		
-		if ( navigator && navigator.globalization && navigator.globalization.getPreferredLanguage){
-			navigator.globalization.getPreferredLanguage(function(a){ 			
-				var device_locale = a.value.split("-")[0];
-				tgd.device_locale = "en";
-				if (tgd.supportLanguages.indexOf(device_locale) > -1){
-					tgd.device_locale = device_locale;
-				}
-				self.itemDefsSync = ContentSync.sync({
-		            src: api_url + '/content/' + tgd.device_locale + '/itemDefs.zip',
-		            id: 'itemDefs_' + tgd.device_locale,
-		            copyCordovaAssets: false,
-		            type: "local"
-		        });
-		
-		        self.itemDefsSync.on('complete', function(data) {
-					console.log("attaching device locale in " + tgd.device_locale);            
-					self.insertJsFile(data.localPath + "/itemDefs.js");
-					self.syncComplete(tgd.versions.local.isDictionaryCached ? "replace" : "local","itemDefs");
-		        });
-		
-		        self.itemDefsSync.on('progress', function(data) {
-		            if (data.status == 1 && self.loadingDictionary == false) {
-						tgd.versions.local.isDictionaryCached = false;
-		                self.loadingDictionary = true;
-		            }
-		        });
-			});		
-		}
+
+        if (navigator && navigator.globalization && navigator.globalization.getPreferredLanguage) {
+            navigator.globalization.getPreferredLanguage(function(a) {
+                var device_locale = a.value.split("-")[0];
+                tgd.device_locale = "en";
+                if (tgd.supportLanguages.indexOf(device_locale) > -1) {
+                    tgd.device_locale = device_locale;
+                }
+                self.itemDefsSync = ContentSync.sync({
+                    src: api_url + '/content/' + tgd.device_locale + '/itemDefs.zip',
+                    id: 'itemDefs_' + tgd.device_locale,
+                    copyCordovaAssets: false,
+                    type: "local"
+                });
+
+                self.itemDefsSync.on('complete', function(data) {
+                    console.log("attaching device locale in " + tgd.device_locale);
+                    self.insertJsFile(data.localPath + "/itemDefs.js");
+                    self.syncComplete(tgd.versions.local.isDictionaryCached ? "replace" : "local", "itemDefs");
+                });
+
+                self.itemDefsSync.on('progress', function(data) {
+                    if (data.status == 1 && self.loadingDictionary == false) {
+                        tgd.versions.local.isDictionaryCached = false;
+                        self.loadingDictionary = true;
+                    }
+                });
+            });
+        }
 
         self.wwwSync = ContentSync.sync({
             src: api_url + '/content/www.zip',
@@ -92,29 +92,29 @@ var loader = new(function() {
         });
 
         self.wwwSync.on('complete', function(data) {
-            if (self.loadingLocal == false) {				
+            if (self.loadingLocal == false) {
                 self.processAssets(data.localPath + "/");
             }
-			self.syncComplete(tgd.versions.local.isAppCached ? "replace" : "local","www");
+            self.syncComplete(tgd.versions.local.isAppCached ? "replace" : "local", "www");
         });
 
         self.wwwSync.on('progress', function(data) {
             if (data.status == 1 && self.loadingLocal == false) {
-				tgd.versions.local.isAppCached = false;
+                tgd.versions.local.isAppCached = false;
                 self.loadingLocal = true;
                 //loading built in first time assets				
                 self.processAssets("");
             }
-        });		
+        });
     }
-	
-	var options = {};
-	this.syncComplete = function(type, id){
-		options[id] = type;
-		if ("www" in options && "itemDefs" in options){
-			self.checkVersions(options.www, options.itemDefs);
-		}
-	}
+
+    var options = {};
+    this.syncComplete = function(type, id) {
+        options[id] = type;
+        if ("www" in options && "itemDefs" in options) {
+            self.checkVersions(options.www, options.itemDefs);
+        }
+    }
 
     var count = 0,
         newContent = false;
@@ -166,7 +166,7 @@ var loader = new(function() {
                     itemDefsSync.on('complete', function(data) {
                         console.log('updated itemDefs');
                         tgd.versions.local.itemDefs(tgd.versions.remote.itemDefs);
-						self.insertJsFile(data.localPath + "/itemDefs.js");
+                        self.insertJsFile(data.localPath + "/itemDefs.js");
                         self.loadApp('itemDefs', data.localPath);
                     });
                 } else {
@@ -195,9 +195,10 @@ var loader = new(function() {
 
 
     this.processAssets = function(path) {
-        console.log("loading manifest from: " + (path + "sync/assets_resolved.json"));
+        var filename = "sync/assets_" + (path == "" ? "builtin" : "update") + ".json";
+        console.log("loading manifest from: " + (path + filename));
         $.ajax({
-            url: path + "sync/assets_resolved.json",
+            url: path + filename,
             success: function(assets) {
                 self.assets = JSON.parse(assets);
                 console.log(self.assets);
