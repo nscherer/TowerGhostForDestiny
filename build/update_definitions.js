@@ -70,7 +70,11 @@ var cacheIcons = function(){
 	}
 }
 if ( fs.existsSync("mobileWorldContent_en.db") ){
-	var jag = require("jag");
+	var basePath = "./locale/";
+	if (!fs.existsSync(basePath)){
+		fs.mkdirSync(basePath);
+	}
+	var AdmZip = require('adm-zip');
 	var sqlite3 = require('sqlite3').verbose();
 	var dbFiles = fs.readdirSync(".").filter(function(file){
 		return file.indexOf("mobileWorldContent") > -1;
@@ -94,30 +98,33 @@ if ( fs.existsSync("mobileWorldContent_en.db") ){
 						var patchData = JSON.parse(fs.readFileSync(patchFile));
 						_.extend(obj, patchData);
 					}
+					
+					/* App is built in English */
 					if (locale == "en"){
-						console.log(locale +' writing file: ' + filename);
+						console.log(locale +' writing builtin file: ' + filename);
 						fs.writeFileSync(jsonPath + filename, "_" + set.name + "="+JSON.stringify(obj));
 					}
-					else {
-						var dataPath = "./locale/" + locale + "/";
-						console.log(locale + ' saving file: ' + filename);
-						if (!fs.existsSync(dataPath)){
-							console.log(fs.existsSync(dataPath) + " creating new path: " + dataPath);
-							fs.mkdirSync(dataPath);
-						}					
-						fs.writeFileSync(dataPath + filename, JSON.stringify(obj));
-						if (set.name == "itemDefs"){
-							console.log(fs.existsSync(dataPath + filename) + " creating gz for " + locale);
-							try {
-								jag.pack(dataPath + filename,dataPath + filename+".gz", function(){
-									console.log("compressed");
-								});
-							}catch(e){
-								console.log("compress error");
-							}
-							
-						}
+					
+					var dataPath = basePath + locale + "/";
+					console.log(locale + ' saving file: ' + filename);
+					if (!fs.existsSync(dataPath)){
+						console.log(fs.existsSync(dataPath) + " creating new path: " + dataPath);
+						fs.mkdirSync(dataPath);
+					}					
+					fs.writeFileSync(dataPath + filename, JSON.stringify(obj));
+					if (set.name == "itemDefs"){
+						console.log(fs.existsSync(dataPath + filename) + " creating zip for " + locale);
+						 // creating archives 
+						var zip = new AdmZip();
+						
+						// add file directly 
+						zip.addFile("itemDefs.js", new Buffer(JSON.stringify(obj)));
+						// get everything as a buffer 
+						var willSendthis = zip.toBuffer();
+						// or write everything to disk 
+						zip.writeZip(dataPath + filename+".zip");
 					}
+
 				});
 			});	
 			db.close();
