@@ -65,7 +65,7 @@ var loader = new(function() {
                 }
 				console.log("device locale is " + tgd.device_locale);
                 self.itemDefsSync = ContentSync.sync({
-                    src: api_url + '/content/locale/' + tgd.device_locale + '/itemDefs.zip',
+                    src: api_url + '/content/locale/' + tgd.device_locale + '/itemDefs.js.zip',
                     id: 'itemDefs_' + tgd.device_locale,
                     copyCordovaAssets: false,
                     type: "local"
@@ -160,7 +160,7 @@ var loader = new(function() {
                 if (tgd.versions.local.itemDefs() !== tgd.versions.remote.itemDefs) {
                     console.log(tgd.versions.local.itemDefs() + " going to sync itemDefs, new version available " + tgd.versions.remote.itemDefs);
                     var itemDefsSync = ContentSync.sync({
-                        src: api_url + '/content/locale/' + tgd.device_locale + '/itemDefs.zip',
+                        src: api_url + '/content/locale/' + tgd.device_locale + '/itemDefs.js.zip',
                         id: 'itemDefs_' + tgd.device_locale,
                         copyCordovaAssets: false,
                         type: itemDefsType ? itemDefsType : "replace"
