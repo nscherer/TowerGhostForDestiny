@@ -768,21 +768,8 @@ var app = new(function() {
                 self.activeUser(user);
                 self.locale(self.activeUser().user.locale);
                 tgd.localText = tgd.locale[self.locale()];
-                if (self.locale() != "en" && self.defsLocale() != self.locale() && !localStorage.getItem("quota_error")) {
-                    $.ajax({
-                        url: "https://towerghostfordestiny.com/locale.cfm?locale=" + self.locale(),
-                        success: function(data) {
-                            BootstrapDialog.alert(tgd.localText.language_pack_downloaded);
-                            try {
-                                self.itemDefs(data);
-                            } catch (e) {
-                                localStorage.clear();
-                                localStorage.setItem("quota_error", "1");
-                            }
-                            self.defsLocale(self.locale());
-                            self.initItemDefs();
-                        }
-                    });
+                if (self.locale() !== tgd.device_locale) {
+                    loader.syncItemDefs(self.locale());
                 }
                 self.loadingUser(false);
                 _.defer(function() {
@@ -1333,21 +1320,10 @@ var app = new(function() {
         });
     };
 
-    this.initItemDefs = function() {
-        var itemDefs = self.itemDefs();
-        if (!_.isEmpty(itemDefs) && self.locale() == self.defsLocale()) {
-            window._itemDefs = JSON.parse(itemDefs);
-        }
-    }
-
     this.init = function() {
         BootstrapDialog.defaultOptions.nl2br = false;
 		$("#initalAppLoad").hide();
-		tgd.localText = tgd.locale[self.locale()];
-        if (_.isUndefined(window._itemDefs)) {
-            return BootstrapDialog.alert(tgd.localText.itemDefs_undefined);
-        }
-        self.initItemDefs();
+        tgd.localText = tgd.locale[self.locale()];
         tgd.perksTemplate = _.template(tgd.perksTemplate);
         tgd.duplicates = ko.observableArray().extend({
             rateLimit: {
@@ -1442,6 +1418,4 @@ if (isMobile) {
         });
     });
     document.addEventListener('deviceready', app.init, false);
-} else {
-    $(document).ready(app.init);
 }

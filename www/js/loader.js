@@ -3,6 +3,8 @@ window.isMobile = (/ios|iphone|ipod|ipad|android|iemobile/i.test(ua));
 
 tgd.supportLanguages = ["en", "es", "it", "de", "ja", "pt", "fr"];
 
+tgd.device_locale = "en";
+
 tgd.defaults = {
     www_local: tgd.version,
     itemDefs_local: tgd.version,
@@ -56,34 +58,15 @@ var loader = new(function() {
         }
 
         if (navigator && navigator.globalization && navigator.globalization.getPreferredLanguage) {
-			console.log("getting device locale");
+            console.log("getting device locale");
             navigator.globalization.getPreferredLanguage(function(a) {
                 var device_locale = a.value.split("-")[0];
                 tgd.device_locale = "en";
                 if (tgd.supportLanguages.indexOf(device_locale) > -1) {
                     tgd.device_locale = device_locale;
                 }
-				console.log("device locale is " + tgd.device_locale);
-                self.itemDefsSync = ContentSync.sync({
-                    src: api_url + '/content/locale/' + tgd.device_locale + '/itemDefs.js.zip',
-                    id: 'itemDefs_' + tgd.device_locale,
-                    copyCordovaAssets: false,
-                    type: "local"
-                });
-
-                self.itemDefsSync.on('complete', function(data) {
-                    console.log("attaching device locale in " + tgd.device_locale);
-                    self.insertJsFile(data.localPath + "/itemDefs.js");
-                    self.syncComplete(tgd.versions.local.isDictionaryCached ? "replace" : "local", "itemDefs");
-                });
-
-                self.itemDefsSync.on('progress', function(data) {
-                    if (data.status == 1 && self.loadingDictionary == false) {
-                        tgd.versions.local.isDictionaryCached = false;
-						self.insertJsFile("/itemDefs.js");
-                        self.loadingDictionary = true;
-                    }
-                });
+                console.log("device locale is " + tgd.device_locale);
+                self.syncItemDefs(tgd.device_locale);
             });
         }
 
@@ -111,6 +94,28 @@ var loader = new(function() {
         });
     }
 
+    this.syncItemDefs = function(locale) {
+        self.itemDefsSync = ContentSync.sync({
+            src: api_url + '/content/locale/' + locale + '/itemDefs.js.zip',
+            id: 'itemDefs_' + locale,
+            copyCordovaAssets: false,
+            type: "local"
+        });
+
+        self.itemDefsSync.on('complete', function(data) {
+            console.log("attaching device locale in " + locale);
+            self.insertJsFile(data.localPath + "/itemDefs.js");
+            self.syncComplete(tgd.versions.local.isDictionaryCached ? "replace" : "local", "itemDefs");
+        });
+
+        self.itemDefsSync.on('progress', function(data) {
+            if (data.status == 1 && self.loadingDictionary == false) {
+                tgd.versions.local.isDictionaryCached = false;
+                self.insertJsFile("/itemDefs.js");
+                self.loadingDictionary = true;
+            }
+        });
+    }
     var options = {};
     this.syncComplete = function(type, id) {
         options[id] = type;

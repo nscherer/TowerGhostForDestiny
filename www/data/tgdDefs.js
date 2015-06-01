@@ -70,7 +70,12 @@ tgd.defaults = _.extend(tgd.defaults,{
 	xsColumn: 12,
 	smColumn: 6,
 	mdColumn: 4,
-	lgColumn: 3
+	lgColumn: 3,
+	locale: "en",
+	defsLocale: "en",
+	vaultPos: 0,
+	itemDefs: "",
+	preferredSystem: "PSN"
 });
 
 tgd.perksTemplate = '<div class="destt-talent">' +
