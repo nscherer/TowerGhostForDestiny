@@ -56,12 +56,14 @@ var loader = new(function() {
         }
 
         if (navigator && navigator.globalization && navigator.globalization.getPreferredLanguage) {
+			console.log("getting device locale");
             navigator.globalization.getPreferredLanguage(function(a) {
                 var device_locale = a.value.split("-")[0];
                 tgd.device_locale = "en";
                 if (tgd.supportLanguages.indexOf(device_locale) > -1) {
                     tgd.device_locale = device_locale;
                 }
+				console.log("device locale is " + tgd.device_locale);
                 self.itemDefsSync = ContentSync.sync({
                     src: api_url + '/content/locale/' + tgd.device_locale + '/itemDefs.zip',
                     id: 'itemDefs_' + tgd.device_locale,
@@ -210,7 +212,7 @@ var loader = new(function() {
     }
 
     this.loadTGD = function() {
-        console.log("jsFiles left to load " + self.assets.loaded_js.length);
+        //console.log("jsFiles left to load " + self.assets.loaded_js.length);
         if (self.assets.loaded_js.length == 0) {
             app.init();
         }
