@@ -6,7 +6,8 @@ tgd.locale = "en";
 tgd.defaults = {
     www_local: tgd.version,
     itemDefs_local: tgd.version,
-    icons_local: tgd.version
+    icons_local: tgd.version,
+	isCached: false
 };
 
 tgd.getStoredValue = function(key) {
@@ -45,6 +46,7 @@ var loader = new(function() {
 		 */
         tgd.versions = {
             local: {
+				isCached: true,
                 www: ko.computed(new tgd.StoreObj("www_local")),
                 itemDefs: ko.computed(new tgd.StoreObj("itemDefs_local")),
                 icons: ko.computed(new tgd.StoreObj("icons_local"))
@@ -61,10 +63,11 @@ var loader = new(function() {
 
         self.wwwSync.on('complete', function(data) {
             console.log('complete ' + self.loadingLocal);
-            if (self.loadingLocal == false) {
+            if (self.loadingLocal == false) {				
                 //local copy cached loading that
                 self.processAssets(data.localPath + "/");
             }
+			self.checkVersions(tgd.versions.local.isCached ? "replace" : "local");
         });
 
         self.wwwSync.on('error', function(data) {
@@ -74,12 +77,12 @@ var loader = new(function() {
 
         self.wwwSync.on('progress', function(data) {
             if (data.status == 1 && self.loadingLocal == false) {
+				tgd.versions.local.isCached = false;
                 self.loadingLocal = true;
                 //loading built in first time assets
                 self.processAssets("");
             }
-        });
-        self.checkVersions();
+        });        
     }
 
     var count = 0,
@@ -97,7 +100,7 @@ var loader = new(function() {
         }
     }
 
-    this.checkVersions = function() {
+    this.checkVersions = function(type) {
         count = 0;
         console.log("requesting server latest version");
         $.ajax({
@@ -111,7 +114,7 @@ var loader = new(function() {
                         src: api_url + '/www.zip',
                         id: 'www',
                         copyCordovaAssets: false,
-                        type: "replace"
+                        type: type ? type : "replace"
                     });
                     wwwSync.on('complete', function(data) {
                         console.log('updated www');
