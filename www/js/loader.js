@@ -1,13 +1,12 @@
 window.ua = navigator.userAgent;
 window.isMobile = (/ios|iphone|ipod|ipad|android|iemobile/i.test(ua));
 
-tgd.locale = "en";
+tgd.supportLanguages = ["en","es","it","de","ja","pt","fr"];
 
 tgd.defaults = {
     www_local: tgd.version,
     itemDefs_local: tgd.version,
-    icons_local: tgd.version,
-	isCached: false
+    icons_local: tgd.version
 };
 
 tgd.getStoredValue = function(key) {
@@ -37,7 +36,8 @@ tgd.StoreObj = function(key, compare, writeCallback) {
 var loader = new(function() {
     var self = this;
     var api_url = "http://towerghostfordestiny.com";
-
+	
+	this.loadingDictionary = false;
     this.loadingLocal = false;
     this.init = function() {
         /* I think the best basic premise I can use for loading an app dynamically
@@ -46,44 +46,75 @@ var loader = new(function() {
 		 */
         tgd.versions = {
             local: {
-				isCached: true,
+				isAppCached: true,
+				isDictionaryCached: true,
                 www: ko.computed(new tgd.StoreObj("www_local")),
                 itemDefs: ko.computed(new tgd.StoreObj("itemDefs_local")),
                 icons: ko.computed(new tgd.StoreObj("icons_local"))
             },
             remote: {}
         }
+		
+		if ( navigator && navigator.globalization && navigator.globalization.getPreferredLanguage){
+			navigator.globalization.getPreferredLanguage(function(a){ 			
+				var device_locale = a.value.split("-")[0];
+				tgd.device_locale = "en";
+				if (tgd.supportLanguages.indexOf(device_locale) > -1){
+					tgd.device_locale = device_locale;
+				}
+				self.itemDefsSync = ContentSync.sync({
+		            src: api_url + '/content/' + tgd.device_locale + '/itemDefs.zip',
+		            id: 'itemDefs_' + tgd.device_locale,
+		            copyCordovaAssets: false,
+		            type: "local"
+		        });
+		
+		        self.itemDefsSync.on('complete', function(data) {
+					console.log("attaching device locale in " + tgd.device_locale);            
+					self.insertJsFile(data.localPath + "/itemDefs.js");
+					self.syncComplete(tgd.versions.local.isDictionaryCached ? "replace" : "local","itemDefs");
+		        });
+		
+		        self.itemDefsSync.on('progress', function(data) {
+		            if (data.status == 1 && self.loadingDictionary == false) {
+						tgd.versions.local.isDictionaryCached = false;
+		                self.loadingDictionary = true;
+		            }
+		        });
+			});		
+		}
 
         self.wwwSync = ContentSync.sync({
-            src: api_url + '/www.zip',
+            src: api_url + '/content/www.zip',
             id: 'www',
             copyCordovaAssets: false,
             type: "local"
         });
 
         self.wwwSync.on('complete', function(data) {
-            console.log('complete ' + self.loadingLocal);
             if (self.loadingLocal == false) {				
-                //local copy cached loading that
                 self.processAssets(data.localPath + "/");
             }
-			self.checkVersions(tgd.versions.local.isCached ? "replace" : "local");
-        });
-
-        self.wwwSync.on('error', function(data) {
-            console.log('error');
-            console.log(data);
+			self.syncComplete(tgd.versions.local.isAppCached ? "replace" : "local","www");
         });
 
         self.wwwSync.on('progress', function(data) {
             if (data.status == 1 && self.loadingLocal == false) {
-				tgd.versions.local.isCached = false;
+				tgd.versions.local.isAppCached = false;
                 self.loadingLocal = true;
-                //loading built in first time assets
+                //loading built in first time assets				
                 self.processAssets("");
             }
-        });        
+        });		
     }
+	
+	var options = {};
+	this.syncComplete = function(type, id){
+		options[id] = type;
+		if ("www" in options && "itemDefs" in options){
+			self.checkVersions(options.www, options.itemDefs);
+		}
+	}
 
     var count = 0,
         newContent = false;
@@ -100,7 +131,7 @@ var loader = new(function() {
         }
     }
 
-    this.checkVersions = function(type) {
+    this.checkVersions = function(wwwType, itemDefsType) {
         count = 0;
         console.log("requesting server latest version");
         $.ajax({
@@ -111,10 +142,10 @@ var loader = new(function() {
                 if (tgd.versions.local.www() !== tgd.versions.remote.www) {
                     console.log(tgd.versions.local.www() + " going to sync www, new version available " + tgd.versions.remote.www);
                     var wwwSync = ContentSync.sync({
-                        src: api_url + '/www.zip',
+                        src: api_url + '/content/www.zip',
                         id: 'www',
                         copyCordovaAssets: false,
-                        type: type ? type : "replace"
+                        type: wwwType ? wwwType : "replace"
                     });
                     wwwSync.on('complete', function(data) {
                         console.log('updated www');
@@ -127,10 +158,10 @@ var loader = new(function() {
                 if (tgd.versions.local.itemDefs() !== tgd.versions.remote.itemDefs) {
                     console.log(tgd.versions.local.itemDefs() + " going to sync itemDefs, new version available " + tgd.versions.remote.itemDefs);
                     var itemDefsSync = ContentSync.sync({
-                        src: api_url + '/itemDefs.zip',
-                        id: 'itemDefs_' + tgd.locale,
+                        src: api_url + '/content/' + tgd.device_locale + '/itemDefs.zip',
+                        id: 'itemDefs_' + tgd.device_locale,
                         copyCordovaAssets: false,
-                        type: "replace"
+                        type: itemDefsType ? itemDefsType : "replace"
                     });
                     itemDefsSync.on('complete', function(data) {
                         console.log('updated itemDefs');
@@ -144,7 +175,7 @@ var loader = new(function() {
                 if (tgd.versions.local.icons() !== tgd.versions.remote.icons) {
                     console.log(tgd.versions.local.icons() + " going to sync icons, new version available " + tgd.versions.remote.icons);
                     var iconsSync = ContentSync.sync({
-                        src: api_url + '/' + tgd.versions.remote.icon + '/icons.zip',
+                        src: api_url + '/content/' + tgd.versions.remote.icons + '/icons.zip',
                         id: 'icons',
                         copyCordovaAssets: false,
                         type: 'merge'
