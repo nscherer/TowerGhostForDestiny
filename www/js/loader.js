@@ -166,6 +166,7 @@ var loader = new(function() {
                     itemDefsSync.on('complete', function(data) {
                         console.log('updated itemDefs');
                         tgd.versions.local.itemDefs(tgd.versions.remote.itemDefs);
+						self.insertJsFile(data.localPath + "/itemDefs.js");
                         self.loadApp('itemDefs', data.localPath);
                     });
                 } else {
