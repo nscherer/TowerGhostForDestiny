@@ -13,6 +13,7 @@
     "templates/help-template.html",
     "templates/loadout-create-template.html",
     "templates/navbar-template.html",
+    "templates/perks-template.html",
     "templates/sections-template.html",
     "templates/view-options-template.html",
     "templates/whatsnew-template.html"
@@ -38,6 +39,7 @@
     "scripts/bungie.js",
     "scripts/destinyexotics.js",
     "scripts/ga.js",
+    "scripts/loader.js",
     "scripts/locale.js",
     "scripts/tooltips.min.js"
   ]

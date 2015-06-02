@@ -3,14 +3,19 @@ window.isMobile = (/ios|iphone|ipod|ipad|android|iemobile/i.test(ua));
 
 tgd.supportLanguages = ["en", "es", "it", "de", "ja", "pt", "fr"];
 
-tgd.device_locale = "en";
 tgd.native_loader = true;
 tgd.defaults = {
     www_local: tgd.version,
     itemDefs_local: tgd.version,
     icons_local: tgd.version,
-    loader_local: ""
+    device_locale: "en",
+    loaderContent: "",
+    wwwPath: "",
+    itemDefsPath: "data",
+    iconsPath: ""
 };
+//TODO: This needs to be broken down into ios/android/wp/chrome sub-URLs
+var contentPath = "/content/";
 
 tgd.getStoredValue = function(key) {
     var saved = "";
@@ -35,6 +40,21 @@ tgd.StoreObj = function(key, compare, writeCallback) {
     }
 }
 
+tgd.versions = {
+    local: {
+        www: ko.computed(new tgd.StoreObj("www_local")),
+        itemDefs: ko.computed(new tgd.StoreObj("itemDefs_local")),
+        icons: ko.computed(new tgd.StoreObj("icons_local"))
+    },
+    remote: {}
+}
+tgd.components = {
+    device_locale: ko.computed(new tgd.StoreObj("device_locale")),
+    wwwPath: ko.computed(new tgd.StoreObj("wwwPath")),
+    itemDefsPath: ko.computed(new tgd.StoreObj("itemDefsPath")),
+    iconsPath: ko.computed(new tgd.StoreObj("iconsPath")),
+    loaderContent: ko.computed(new tgd.StoreObj("loaderContent")),
+}
 
 var loader = new(function() {
     var self = this;
@@ -43,198 +63,155 @@ var loader = new(function() {
     this.loadingDictionary = false;
     this.loadingLocal = false;
     this.init = function() {
-        /* I think the best basic premise I can use for loading an app dynamically
-			if remoteApp is cached load it first, checkVersions after and load remoteApp after
-			else if remoteApp is not cached automatically load localApp, remoteApp after			
-		 */
-        tgd.versions = {
-            local: {
-                isAppCached: true,
-                isDictionaryCached: true,
-                loader: ko.computed(new tgd.StoreObj("loader_local")),
-                www: ko.computed(new tgd.StoreObj("www_local")),
-                itemDefs: ko.computed(new tgd.StoreObj("itemDefs_local")),
-                icons: ko.computed(new tgd.StoreObj("icons_local"))
-            },
-            remote: {}
-        }
-
-        if (tgd.native_loader == true && !_.isEmpty(tgd.versions.local.loader())) {
+        /* new concept: if there is a new loader use that and abort this from executing early */
+        if (tgd.native_loader == true && !_.isEmpty(tgd.components.loaderContent())) {
             tgd.native_loader = false;
-            var scriptTag = $('<script type="text/javascript"></script>').html(tgd.versions.local.loader()).appendTo("head");
+            delete window.loader;
+            var scriptTag = $('<script type="text/javascript"></script>').html(tgd.components.loaderContent()).appendTo("head");
+			setTimeout(function(){ loader.init() ,1000});
             return;
         }
+        /* asking to load assets immediately whether built in or update assets*/
+        self.loadAssets();
+        /* don't make this dependent upon the loading process, async task that might update the assets for next load*/
+        self.checkVersions();
+    }
 
+    this.syncIcons = function(callback) {
+        /* save a contentsync call here because all the icons are built in */
+        if (tgd.versions.local.icons() !== tgd.versions.remote.icons) {
+            console.log(tgd.versions.local.icons() + " going to sync icons, new version available " + tgd.versions.remote.icons);
+            var iconsSync = ContentSync.sync({
+                src: api_url + '/content/' + tgd.versions.remote.icons + '/icons.zip',
+                id: 'icons',
+                copyCordovaAssets: false,
+                type: 'merge'
+            });
+            iconsSync.on('complete', function(data) {
+                console.log('complete');
+                tgd.versions.local.icons(tgd.versions.remote.icons);
+                tgd.components.iconsPath(data.localPath);
+                callback();
+            });
+        } else {
+            callback();
+        }
+    }
+
+    this.syncWWW = function(callback) {
+        if (tgd.versions.local.www() !== tgd.versions.remote.www) {
+            console.log(tgd.versions.local.www() + " is local version of www, new version available: " + tgd.versions.remote.www);
+            var wwwSync = ContentSync.sync({
+                src: api_url + contentPath + 'www.zip',
+                id: 'www',
+                copyCordovaAssets: false,
+                type: "replace"
+            });
+            wwwSync.on('complete', function(data) {
+                console.log('updated www to ' + tgd.versions.remote.www);
+                tgd.versions.local.www(tgd.versions.remote.www);
+                tgd.components.wwwPath(data.localPath);
+                callback(true);
+            });
+        } else {
+            callback(false);
+        }
+    }
+
+    this.getDeviceLocale = function(callback) {
         if (navigator && navigator.globalization && navigator.globalization.getPreferredLanguage) {
             console.log("getting device locale");
             navigator.globalization.getPreferredLanguage(function(a) {
                 var device_locale = a.value.split("-")[0];
-                tgd.device_locale = "en";
                 if (tgd.supportLanguages.indexOf(device_locale) > -1) {
-                    tgd.device_locale = device_locale;
+                    tgd.components.device_locale(device_locale);
                 }
                 console.log("device locale is " + tgd.device_locale);
-                self.syncItemDefs(tgd.device_locale);
+                callback();
             });
-        }
-
-        self.wwwSync = ContentSync.sync({
-            src: api_url + '/content/www.zip',
-            id: 'www',
-            copyCordovaAssets: false,
-            type: "local"
-        });
-
-        self.wwwSync.on('complete', function(data) {
-            if (self.loadingLocal == false) {
-                self.processAssets(data.localPath + "/");
-            }
-            self.syncComplete(tgd.versions.local.isAppCached ? "replace" : "local", "www");
-        });
-
-        self.wwwSync.on('progress', function(data) {
-            if (data.status == 1 && self.loadingLocal == false) {
-                tgd.versions.local.isAppCached = false;
-                self.loadingLocal = true;
-                //loading built in first time assets				
-                self.processAssets("");
-            }
-        });
-    }
-
-    this.syncItemDefs = function(locale) {
-        self.itemDefsSync = ContentSync.sync({
-            src: api_url + '/content/locale/' + locale + '/itemDefs.js.zip',
-            id: 'itemDefs_' + locale,
-            copyCordovaAssets: false,
-            type: "local"
-        });
-
-        self.itemDefsSync.on('complete', function(data) {
-            console.log("attaching device locale in " + locale);
-            self.insertJsFile(data.localPath + "/itemDefs.js");
-            self.syncComplete(tgd.versions.local.isDictionaryCached ? "replace" : "local", "itemDefs");
-        });
-
-        self.itemDefsSync.on('progress', function(data) {
-            if (data.status == 1 && self.loadingDictionary == false) {
-                tgd.versions.local.isDictionaryCached = false;
-                self.insertJsFile("/itemDefs.js");
-                self.loadingDictionary = true;
-            }
-        });
-    }
-    var options = {};
-    this.syncComplete = function(type, id) {
-        options[id] = type;
-        if ("www" in options && "itemDefs" in options) {
-            self.checkVersions(options.www, options.itemDefs);
+        } else {
+            callback();
         }
     }
 
-    var count = 0,
-        newContent = false;
-    this.loadApp = function(type, path) {
-        console.log("results from checkVersion: " + type + " has new content " + path);
-        count++;
-        if (path) {
-            newContent = true;
-        }
-        if (count == 3 && newContent == true) {
-            if (confirm("There is a new version available would you like to restart now?")) {
-                location.reload();
+    this.syncLocale = function(locale, callback) {
+        self.getDeviceLocale(function() {
+            if ((tgd.versions.local.itemDefs() !== tgd.versions.remote.itemDefs && tgd.versions.remote.itemDefs) || tgd.components.device_locale() !== locale) {
+                console.log(tgd.versions.local.itemDefs() + " is the current itemDefs, new version available " + tgd.versions.remote.itemDefs);
+                if (tgd.components.device_locale() !== locale) {
+                    console.log(tgd.components.device_locale() + " updating itemDefs even though same version because of a new locale detected " + locale);
+                }
+                var itemDefsSync = ContentSync.sync({
+                    src: api_url + '/content/locale/' + locale + '/itemDefs.js.zip',
+                    id: 'itemDefs_' + locale,
+                    copyCordovaAssets: false,
+                    type: "replace"
+                });
+                itemDefsSync.on('complete', function(data) {
+                    console.log('updated itemDefs to ' + tgd.versions.remote.itemDefs);
+                    tgd.versions.local.itemDefs(tgd.versions.remote.itemDefs);
+                    tgd.components.itemDefsPath(data.localPath);
+                    tgd.components.device_locale(locale);
+                    if (callback) callback();
+                });
+            } else {
+                if (callback) callback();
             }
-        }
+        });
     }
 
-    this.checkVersions = function(wwwType, itemDefsType) {
-        count = 0;
+    this.checkVersions = function() {
         console.log("requesting server latest version");
         $.ajax({
             url: api_url + "/versions.cfm",
             success: function(versions) {
                 console.log("latest versions: " + versions);
                 tgd.versions.remote = JSON.parse(versions);
-                if (tgd.versions.local.www() !== tgd.versions.remote.www) {
-                    console.log(tgd.versions.local.www() + " going to sync www, new version available " + tgd.versions.remote.www);
-                    var wwwSync = ContentSync.sync({
-                        src: api_url + '/content/www.zip',
-                        id: 'www',
-                        copyCordovaAssets: false,
-                        type: wwwType ? wwwType : "replace"
+                self.syncWWW(function(isNew) {
+                    self.syncLocale(tgd.components.device_locale(), function() {
+                        self.syncIcons(function() {
+							if (isNew && confirm("There is new content would you like to reload now?")){
+								location.reload();
+							}
+                        });
                     });
-                    wwwSync.on('complete', function(data) {
-                        console.log('updated www');
-                        tgd.versions.local.www(tgd.versions.remote.www);
-                        self.loadApp('www', data.localPath);
-                    });
-                } else {
-                    self.loadApp('www');
-                }
-                if (tgd.versions.local.itemDefs() !== tgd.versions.remote.itemDefs) {
-                    console.log(tgd.versions.local.itemDefs() + " going to sync itemDefs, new version available " + tgd.versions.remote.itemDefs);
-                    var itemDefsSync = ContentSync.sync({
-                        src: api_url + '/content/locale/' + tgd.device_locale + '/itemDefs.js.zip',
-                        id: 'itemDefs_' + tgd.device_locale,
-                        copyCordovaAssets: false,
-                        type: itemDefsType ? itemDefsType : "replace"
-                    });
-                    itemDefsSync.on('complete', function(data) {
-                        console.log('updated itemDefs');
-                        tgd.versions.local.itemDefs(tgd.versions.remote.itemDefs);
-                        self.insertJsFile(data.localPath + "/itemDefs.js");
-                        self.loadApp('itemDefs', data.localPath);
-                    });
-                } else {
-                    self.loadApp('itemDefs');
-                }
-                /* save a contentsync call here because all the icons are built in */
-                if (tgd.versions.local.icons() !== tgd.versions.remote.icons) {
-                    console.log(tgd.versions.local.icons() + " going to sync icons, new version available " + tgd.versions.remote.icons);
-                    var iconsSync = ContentSync.sync({
-                        src: api_url + '/content/' + tgd.versions.remote.icons + '/icons.zip',
-                        id: 'icons',
-                        copyCordovaAssets: false,
-                        type: 'merge'
-                    });
-                    iconsSync.on('complete', function(data) {
-                        console.log('complete');
-                        tgd.versions.local.icons(tgd.versions.remote.icons);
-                        self.loadApp('icons', data.localPath);
-                    });
-                } else {
-                    self.loadApp('icons');
-                }
+                });
             }
         });
     }
 
-
-    this.processAssets = function(path) {
-        var filename = "sync/assets_" + (path == "" ? "builtin" : "update") + ".json";
-        console.log("loading manifest from: " + (path + filename));
+    this.loadAssets = function() {
+        var wwwPath = tgd.components.wwwPath();
+        var itemDefsPath = tgd.components.itemDefsPath();
+        var isBuiltInApp = (wwwPath === "");
+        var filename = "sync/assets_" + (isBuiltInApp ? "builtin" : "update") + ".json";
+        console.log(isBuiltInApp + " loading manifest from: " + wwwPath);
         $.ajax({
-            url: path + filename,
+            url: wwwPath + filename,
             success: function(assets) {
                 self.assets = JSON.parse(assets);
-                if (path !== "" && self.assets.js.indexOf("loader.js") > -1) {
+                var loaderIndex = self.assets.js.indexOf("scripts/loader.js");
+                if (loaderIndex > -1) {
+                    self.assets.js.splice(loaderIndex, 1);
                     $.ajax({
-                        url: path + "/www/scripts/loader.js",
+                        url: wwwPath + "/www/scripts/loader.js",
                         success: function(content) {
-                            tgd.versions.local.loader(content);
+                            tgd.components.loaderContent(content);
                         }
                     });
                 }
-                self.addCss(path);
-                self.addJs(path);
-                self.addTemplates(path);
+                self.assets.loaded_js = self.assets.js.slice();
+                self.addCss(wwwPath);
+                self.insertJsFile(itemDefsPath + "/itemDefs.js");
+                self.addJs(wwwPath);
+                self.addTemplates(wwwPath);
             }
         });
     }
 
     this.loadTGD = function() {
-        //console.log("jsFiles left to load " + self.assets.loaded_js.length);
         if (self.assets.loaded_js.length == 0) {
+            console.log("APP INIT")
             app.init();
         }
     }
@@ -252,7 +229,6 @@ var loader = new(function() {
     }
 
     this.addJs = function(basePath) {
-        self.assets.loaded_js = self.assets.js;
         $.each(self.assets.js, function(index, file) {
             self.insertJsFile(basePath + file);
         });
@@ -262,7 +238,6 @@ var loader = new(function() {
         $.ajax({
             url: filename,
             success: function(template) {
-                //console.log(filename + " templated added " + template.length);
                 $("#templates").append(template);
             }
         });
@@ -275,8 +250,11 @@ var loader = new(function() {
         fileref.setAttribute("src", filename);
         fileref.onload = function() {
             console.log("file loaded " + filename);
-            self.assets.loaded_js.splice(self.assets.loaded_js.indexOf(filename), 1);
-            self.loadTGD();
+            var index = self.assets.loaded_js.indexOf(filename);
+            if (index > -1) {
+                self.assets.loaded_js.splice(index, 1);
+                self.loadTGD();
+            }
         };
         fileref.onerror = function() {
             console.log("error loading " + filename);
@@ -285,7 +263,6 @@ var loader = new(function() {
     }
 
     this.insertCssFile = function(filename) {
-        // console.log("adding css file " + filename);
         var fileref = document.createElement("link");
         fileref.setAttribute("rel", "stylesheet");
         fileref.setAttribute("type", "text/css");

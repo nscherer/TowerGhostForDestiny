@@ -1,4 +1,4 @@
-<div class="container" data-bind="visible: orderedCharacters().length > 0">
+<div class="container" data-bind="visible: orderedCharacters().length > 0" style="display:none;">
         <div class="container-fluid" id="charactersContainer">
             <div class="row" data-bind="foreach: { data: orderedCharacters, as: 'character' }">
                 <div class="profile" data-bind="css: $parent.columnMode, attr:{id: character.id}">

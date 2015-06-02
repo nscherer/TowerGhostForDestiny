@@ -71,22 +71,7 @@ tgd.defaults = _.extend(tgd.defaults,{
 	smColumn: 6,
 	mdColumn: 4,
 	lgColumn: 3,
-	locale: tgd.device_locale,
-	defsLocale: tgd.device_locale,
 	vaultPos: 0,
 	itemDefs: "",
 	preferredSystem: "PSN"
 });
-
-tgd.perksTemplate = '<div class="destt-talent">' +
-	'<% perks.forEach(function(perk){ %>' +
-		'<div class="destt-talent-wrapper">' +
-			'<div class="destt-talent-icon">' +
-				'<img src="<%= perk.iconPath %>" width="36">' +
-			'</div>' +
-			'<div class="destt-talent-description">' +
-				'<%= perk.description %>' +
-			'</div>' +
-		'</div>' +
-	'<% }) %>' +
-'</div>';

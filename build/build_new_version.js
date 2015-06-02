@@ -15,7 +15,7 @@ if ( process.argv[2] ){
 }
 
 updateLoader = false
-if ( process.argv[3] ){
+if ( process.argv[3] == "true" ){
 	updateLoader = true;
 }
 
@@ -49,17 +49,23 @@ var completedConfigFile = {
 	css: [], templates: [], js: []
 }
 completedConfigFile.css = _.unique(_.flatten(assetsConfigFile.css.map(resolvePaths)));
+var backupLoaderPath = "scripts/loader.js", mainLoaderPath = "js/loader.js";
+if ( updateLoader ){	
+	completedConfigFile.js.unshift(backupLoaderPath);
+	console.log("creating backup loader");
+	fs.writeFileSync(projectPath + backupLoaderPath, fs.readFileSync(projectPath + mainLoaderPath));
+}
+else {
+	console.log("deleting backup loader " + (projectPath + backupLoaderPath));
+	if (fs.existsSync(projectPath + backupLoaderPath))
+		fs.unlinkSync(projectPath + backupLoaderPath);
+}
 completedConfigFile.js = _.unique(_.flatten(assetsConfigFile.js.map(resolvePaths)));
 completedConfigFile.templates = _.unique(_.flatten(assetsConfigFile.templates.map(resolvePaths)));
-fs.writeFileSync(assetsBuiltInConfigFile, JSON.stringify(completedConfigFile, null, 2));
 completedConfigFile.js = _.filter(completedConfigFile.js, function(file){
 	return file.indexOf("itemDefs") == -1;
 });
-if ( updateLoader ){
-	var backupLoaderPath = "scripts/loader.js", mainLoaderPath = "js/loader.js";
-	completedConfigFile.js.unshift(backupLoaderPath);
-	fs.writeFileSync(projectPath + backupLoaderPath, fs.readFileSync(projectPath + mainLoaderPath));
-}
+fs.writeFileSync(assetsBuiltInConfigFile, JSON.stringify(completedConfigFile, null, 2));
 fs.writeFileSync(assetsUpdateConfigFile, JSON.stringify(completedConfigFile, null, 2));
 
 var chromeConfigFile = "../manifest.json";

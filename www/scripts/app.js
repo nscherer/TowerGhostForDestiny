@@ -207,8 +207,6 @@ var app = new(function() {
     this.searchKeyword = ko.observable(tgd.defaults.searchKeyword);
     this.preferredSystem = ko.computed(new tgd.StoreObj("preferredSystem"));
     this.itemDefs = ko.computed(new tgd.StoreObj("itemDefs"));
-    this.defsLocale = ko.computed(new tgd.StoreObj("defsLocale"));
-    this.locale = ko.computed(new tgd.StoreObj("locale"));
     this.vaultPos = ko.computed(new tgd.StoreObj("vaultPos"));
     this.xsColumn = ko.computed(new tgd.StoreObj("xsColumn"));
     this.smColumn = ko.computed(new tgd.StoreObj("smColumn"));
@@ -766,11 +764,12 @@ var app = new(function() {
                     ref = null;
                 }
                 self.activeUser(user);
-                self.locale(self.activeUser().user.locale);
+				
+                /*self.locale(self.activeUser().user.locale);
                 tgd.localText = tgd.locale[self.locale()];
                 if (self.locale() !== tgd.device_locale) {
-                    loader.syncItemDefs(self.locale());
-                }
+                    loader.syncLocale(self.locale());
+                }*/
                 self.loadingUser(false);
                 _.defer(function() {
                     self.search();
@@ -1323,8 +1322,8 @@ var app = new(function() {
     this.init = function() {
         BootstrapDialog.defaultOptions.nl2br = false;
 		$("#initalAppLoad").hide();
-        tgd.localText = tgd.locale[self.locale()];
-        tgd.perksTemplate = _.template(tgd.perksTemplate);
+        tgd.localText = tgd.locale[tgd.components.device_locale()];
+        tgd.perksTemplate = _.template($("#perks-template").html());
         tgd.duplicates = ko.observableArray().extend({
             rateLimit: {
                 timeout: 5000,
@@ -1417,5 +1416,4 @@ if (isMobile) {
             });
         });
     });
-    document.addEventListener('deviceready', app.init, false);
 }
