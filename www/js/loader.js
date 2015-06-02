@@ -137,33 +137,31 @@ var loader = new(function() {
     }
 
     this.syncLocale = function(locale, callback) {
-        self.getDeviceLocale(function() {
-            var hasNewVersion = (tgd.versions.local.itemDefs() !== tgd.versions.remote.itemDefs && tgd.versions.remote.itemDefs);
-            var hasNewLocale = (tgd.components.device_locale() !== locale);
-            if (hasNewVersion || hasNewLocale) {
-                if (hasNewVersion) {
-                    console.log(tgd.versions.local.itemDefs() + " is the current itemDefs, new version available " + tgd.versions.remote.itemDefs);
-                }
-                if (hasNewLocale) {
-                    console.log(tgd.components.device_locale() + " updating itemDefs even though same version because of a new locale detected " + locale);
-                }
-                var itemDefsSync = ContentSync.sync({
-                    src: api_url + '/content/locale/' + locale + '/itemDefs.js.zip',
-                    id: 'itemDefs_' + locale,
-                    copyCordovaAssets: false,
-                    type: "replace"
-                });
-                itemDefsSync.on('complete', function(data) {
-                    console.log(locale + ' updated itemDefs to ' + tgd.versions.remote.itemDefs);
-                    tgd.versions.local.itemDefs(tgd.versions.remote.itemDefs);
-                    tgd.components.itemDefsPath(data.localPath);
-                    tgd.components.device_locale(locale);
-                    if (callback) callback();
-                });
-            } else {
-                if (callback) callback();
+        var hasNewVersion = (tgd.versions.local.itemDefs() !== tgd.versions.remote.itemDefs && tgd.versions.remote.itemDefs);
+        var hasNewLocale = (tgd.components.device_locale() !== locale);
+        if (hasNewVersion || hasNewLocale) {
+            if (hasNewVersion) {
+                console.log(tgd.versions.local.itemDefs() + " is the current itemDefs, new version available " + tgd.versions.remote.itemDefs);
             }
-        });
+            if (hasNewLocale) {
+                console.log(tgd.components.device_locale() + " updating itemDefs even though same version because of a new locale detected " + locale);
+            }
+            var itemDefsSync = ContentSync.sync({
+                src: api_url + '/content/locale/' + locale + '/itemDefs.js.zip',
+                id: 'itemDefs_' + locale,
+                copyCordovaAssets: false,
+                type: "replace"
+            });
+            itemDefsSync.on('complete', function(data) {
+                console.log(locale + ' updated itemDefs to ' + tgd.versions.remote.itemDefs);
+                tgd.versions.local.itemDefs(tgd.versions.remote.itemDefs);
+                tgd.components.itemDefsPath(data.localPath);
+                tgd.components.device_locale(locale);
+                if (callback) callback();
+            });
+        } else {
+            if (callback) callback();
+        }
     }
 
     this.checkVersions = function() {
@@ -175,14 +173,16 @@ var loader = new(function() {
                 tgd.versions.remote = JSON.parse(versions);
                 self.syncWWW(function(isNew) {
                     console.log("www is new? " + isNew);
-                    console.log("calling syncLocale with " + tgd.components.device_locale());
-                    self.syncLocale(tgd.components.device_locale(), function() {
-                        console.log("locale synced");
-                        self.syncIcons(function() {
-                            console.log("icons synced");
-                            if (isNew && confirm("There is new content would you like to reload now?")) {
-                                location.reload();
-                            }
+                    self.getDeviceLocale(function() {
+                        console.log("calling syncLocale with " + tgd.components.device_locale());
+                        self.syncLocale(tgd.components.device_locale(), function() {
+                            console.log("locale synced");
+                            self.syncIcons(function() {
+                                console.log("icons synced");
+                                if (isNew && confirm("There is new content would you like to reload now?")) {
+                                    location.reload();
+                                }
+                            });
                         });
                     });
                 });
@@ -202,6 +202,7 @@ var loader = new(function() {
                 self.assets = JSON.parse(assets);
                 var loaderIndex = self.assets.js.indexOf("scripts/loader.js");
                 if (loaderIndex > -1) {
+					console.log("found new loader!");
                     self.assets.js.splice(loaderIndex, 1);
                     $.ajax({
                         url: wwwPath + "/www/scripts/loader.js",
