@@ -68,7 +68,9 @@ var loader = new(function() {
             tgd.native_loader = false;
             delete window.loader;
             var scriptTag = $('<script type="text/javascript"></script>').html(tgd.components.loaderContent()).appendTo("head");
-			setTimeout(function(){ loader.init() ,1000});
+            setTimeout(function() {
+                loader.init(), 1000
+            });
             return;
         }
         /* asking to load assets immediately whether built in or update assets*/
@@ -126,7 +128,7 @@ var loader = new(function() {
                 if (tgd.supportLanguages.indexOf(device_locale) > -1) {
                     tgd.components.device_locale(device_locale);
                 }
-                console.log("device locale is " + tgd.device_locale);
+                console.log("device locale is " + tgd.components.device_locale());
                 callback();
             });
         } else {
@@ -136,9 +138,13 @@ var loader = new(function() {
 
     this.syncLocale = function(locale, callback) {
         self.getDeviceLocale(function() {
-            if ((tgd.versions.local.itemDefs() !== tgd.versions.remote.itemDefs && tgd.versions.remote.itemDefs) || tgd.components.device_locale() !== locale) {
-                console.log(tgd.versions.local.itemDefs() + " is the current itemDefs, new version available " + tgd.versions.remote.itemDefs);
-                if (tgd.components.device_locale() !== locale) {
+            var hasNewVersion = (tgd.versions.local.itemDefs() !== tgd.versions.remote.itemDefs && tgd.versions.remote.itemDefs);
+            var hasNewLocale = (tgd.components.device_locale() !== locale);
+            if (hasNewVersion || hasNewLocale) {
+                if (hasNewVersion) {
+                    console.log(tgd.versions.local.itemDefs() + " is the current itemDefs, new version available " + tgd.versions.remote.itemDefs);
+                }
+                if (hasNewLocale) {
                     console.log(tgd.components.device_locale() + " updating itemDefs even though same version because of a new locale detected " + locale);
                 }
                 var itemDefsSync = ContentSync.sync({
@@ -148,7 +154,7 @@ var loader = new(function() {
                     type: "replace"
                 });
                 itemDefsSync.on('complete', function(data) {
-                    console.log('updated itemDefs to ' + tgd.versions.remote.itemDefs);
+                    console.log(locale + ' updated itemDefs to ' + tgd.versions.remote.itemDefs);
                     tgd.versions.local.itemDefs(tgd.versions.remote.itemDefs);
                     tgd.components.itemDefsPath(data.localPath);
                     tgd.components.device_locale(locale);
@@ -168,11 +174,15 @@ var loader = new(function() {
                 console.log("latest versions: " + versions);
                 tgd.versions.remote = JSON.parse(versions);
                 self.syncWWW(function(isNew) {
+                    console.log("www is new? " + isNew);
+                    console.log("calling syncLocale with " + tgd.components.device_locale());
                     self.syncLocale(tgd.components.device_locale(), function() {
+                        console.log("locale synced");
                         self.syncIcons(function() {
-							if (isNew && confirm("There is new content would you like to reload now?")){
-								location.reload();
-							}
+                            console.log("icons synced");
+                            if (isNew && confirm("There is new content would you like to reload now?")) {
+                                location.reload();
+                            }
                         });
                     });
                 });
