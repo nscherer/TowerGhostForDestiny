@@ -63,6 +63,7 @@ var loader = new(function() {
     this.loadingDictionary = false;
     this.loadingLocal = false;
     this.init = function() {
+        console.log("loader init");
         /* new concept: if there is a new loader use that and abort this from executing early */
         if (tgd.native_loader == true && !_.isEmpty(tgd.components.loaderContent())) {
             tgd.native_loader = false;
@@ -202,7 +203,7 @@ var loader = new(function() {
                 self.assets = JSON.parse(assets);
                 var loaderIndex = self.assets.js.indexOf("scripts/loader.js");
                 if (loaderIndex > -1) {
-					console.log("found new loader!");
+                    console.log("found new loader!");
                     self.assets.js.splice(loaderIndex, 1);
                     $.ajax({
                         url: wwwPath + "/www/scripts/loader.js",

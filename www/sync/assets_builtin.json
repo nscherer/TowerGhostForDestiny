@@ -39,7 +39,6 @@
     "scripts/bungie.js",
     "scripts/destinyexotics.js",
     "scripts/ga.js",
-    "scripts/loader.js",
     "scripts/locale.js",
     "scripts/tooltips.min.js"
   ]
