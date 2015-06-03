@@ -226,8 +226,14 @@ var loader = new(function() {
 
     this.loadTGD = function() {
         if (self.assets.loaded_js.length == 0) {
-            console.log("APP INIT")
-            app.init();
+            var readyWait = setInterval(function(){
+				console.log("checking for app init")
+				if ( typeof app !== "undefined" && typeof BootstrapDialog !== "undefined" ){
+					app.init();
+					console.log("APP INIT")
+					clearInterval(readyWait);
+				}
+			}, 100);
         }
     }
 
