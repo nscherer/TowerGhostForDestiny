@@ -122,17 +122,17 @@ var loader = new(function() {
     }
 
     this.getDeviceLocale = function(callback) {
-		var locale = tgd.defaults.device_locale;
+        var locale = tgd.defaults.device_locale;
         if (navigator && navigator.globalization && navigator.globalization.getPreferredLanguage) {
             console.log("getting device locale internally");
             navigator.globalization.getPreferredLanguage(function(a) {
-                if (a && a.value && a.value.indexOf("-") > -1){
-					var value = a.value.split("-")[0];
-					if (tgd.supportLanguages.indexOf(value) > -1) {
-						console.log("internal locale is " + value);
-						locale = value;
-					}
-				}
+                if (a && a.value && a.value.indexOf("-") > -1) {
+                    var value = a.value.split("-")[0];
+                    if (tgd.supportLanguages.indexOf(value) > -1) {
+                        console.log("internal locale is " + value);
+                        locale = value;
+                    }
+                }
                 callback(locale);
             });
         } else {
@@ -195,45 +195,59 @@ var loader = new(function() {
     }
 
     this.loadAssets = function() {
-        var wwwPath = tgd.components.wwwPath();
-        var itemDefsPath = tgd.components.itemDefsPath();
-        var isBuiltInApp = (wwwPath === "");
-        var filename = "sync/assets_" + (isBuiltInApp ? "builtin" : "update") + ".json";
-        console.log(isBuiltInApp + " loading manifest from: " + wwwPath);
-        $.ajax({
-            url: wwwPath + filename,
-            success: function(assets) {
-                self.assets = JSON.parse(assets);
-                var loaderIndex = self.assets.js.indexOf("scripts/loader.js");
-                if (loaderIndex > -1) {
-                    console.log("found new loader!");
-                    self.assets.js.splice(loaderIndex, 1);
-                    $.ajax({
-                        url: wwwPath + "/www/scripts/loader.js",
-                        success: function(content) {
-                            tgd.components.loaderContent(content);
-                        }
-                    });
+        console.log(" LOAD ASSETS ");
+        try {
+            var wwwPath = tgd.components.wwwPath();
+            var itemDefsPath = tgd.components.itemDefsPath();
+            var isBuiltInApp = (wwwPath === "");
+            var filename = "sync/assets_" + (isBuiltInApp ? "builtin" : "update") + ".json";
+            console.log(isBuiltInApp + " loading manifest from: " + wwwPath + filename);
+            $.ajax({
+                url: wwwPath + filename,
+                success: function(assets) {
+                    console.log("manifest successfully received");
+                    self.assets = JSON.parse(assets);
+                    var loaderIndex = self.assets.js.indexOf("scripts/loader.js");
+                    if (loaderIndex > -1) {
+                        console.log("found new loader!");
+                        self.assets.js.splice(loaderIndex, 1);
+                        $.ajax({
+                            url: wwwPath + "/scripts/loader.js",
+                            success: function(content) {
+                                tgd.components.loaderContent(content);
+                            },
+                            error: function() {
+                                console.log("error loading alternative loader");
+                                console.log(arguments);
+                            }
+                        });
+                    }
+                    self.assets.loaded_js = self.assets.js.slice();
+                    self.addCss(wwwPath);
+                    self.insertJsFile(itemDefsPath + "/itemDefs.js");
+                    self.addJs(wwwPath);
+                    self.addTemplates(wwwPath);
+                },
+                error: function() {
+                    console.log("error loading assets");
+                    console.log(arguments);
                 }
-                self.assets.loaded_js = self.assets.js.slice();
-                self.addCss(wwwPath);
-                self.insertJsFile(itemDefsPath + "/itemDefs.js");
-                self.addJs(wwwPath);
-                self.addTemplates(wwwPath);
-            }
-        });
+            });
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     this.loadTGD = function() {
         if (self.assets.loaded_js.length == 0) {
-            var readyWait = setInterval(function(){
-				console.log("checking for app init")
-				if ( typeof app !== "undefined" && typeof BootstrapDialog !== "undefined" ){
-					app.init();
-					console.log("APP INIT")
-					clearInterval(readyWait);
-				}
-			}, 100);
+            var readyWait = setInterval(function() {
+                console.log("checking for app init")
+                if (typeof app !== "undefined" && typeof BootstrapDialog !== "undefined") {
+                    app.init();
+                    console.log("APP INIT")
+                    clearInterval(readyWait);
+                }
+            }, 100);
         }
     }
 
