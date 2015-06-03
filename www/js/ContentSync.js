@@ -24,7 +24,11 @@ SyncTask = new(function() {
 })
 
 if (!isMobile) {
-
+	navigator.globalization = {
+		getPreferredLanguage: function(callback){
+			callback({ value: "es-US" });
+		}
+	}
     ContentSync = new(function() {
         this.sync = function(options) {
             return SyncTask.create(options);

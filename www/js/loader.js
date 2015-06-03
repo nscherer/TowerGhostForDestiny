@@ -122,18 +122,21 @@ var loader = new(function() {
     }
 
     this.getDeviceLocale = function(callback) {
+		var locale = tgd.defaults.device_locale;
         if (navigator && navigator.globalization && navigator.globalization.getPreferredLanguage) {
-            console.log("getting device locale");
+            console.log("getting device locale internally");
             navigator.globalization.getPreferredLanguage(function(a) {
-                var device_locale = a.value.split("-")[0];
-                if (tgd.supportLanguages.indexOf(device_locale) > -1) {
-                    tgd.components.device_locale(device_locale);
-                }
-                console.log("device locale is " + tgd.components.device_locale());
-                callback();
+                if (a && a.value && a.value.indexOf("-") > -1){
+					var value = a.value.split("-")[0];
+					if (tgd.supportLanguages.indexOf(value) > -1) {
+						console.log("internal locale is " + value);
+						locale = value;
+					}
+				}
+                callback(locale);
             });
         } else {
-            callback();
+            callback(locale);
         }
     }
 
@@ -174,9 +177,9 @@ var loader = new(function() {
                 tgd.versions.remote = JSON.parse(versions);
                 self.syncWWW(function(isNew) {
                     console.log("www is new? " + isNew);
-                    self.getDeviceLocale(function() {
-                        console.log("calling syncLocale with " + tgd.components.device_locale());
-                        self.syncLocale(tgd.components.device_locale(), function() {
+                    self.getDeviceLocale(function(locale) {
+                        console.log("calling syncLocale with " + locale);
+                        self.syncLocale(locale, function() {
                             console.log("locale synced");
                             self.syncIcons(function() {
                                 console.log("icons synced");
