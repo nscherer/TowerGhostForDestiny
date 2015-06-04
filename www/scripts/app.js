@@ -1319,6 +1319,11 @@ var app = new(function() {
         });
     };
 
+	this.log = function(item, event){
+		console.log("img error");
+		event.target.src = tgd.components.iconsPath() + item.icon;
+	}
+	
     this.init = function() {
 		self.activeLoadout(new Loadout());
         BootstrapDialog.defaultOptions.nl2br = false;

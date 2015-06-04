@@ -21,11 +21,11 @@
         <div class="itemBucket" data-bind="css: ((character.id == 'Vault' || bucketType == 'Post Master' || bucketType == 'Consumables' || bucketType == 'Materials') ? 'col-xs-12' : 'col-xs-9') + ' ' + bucketType">
             <div data-bind="foreach: { data: character.get(bucketType), as: 'item' }">
                 <span class="bucket-item" data-bind="css: ((character.id == 'Vault' || bucketType == 'Post Master'  || bucketType == 'Consumables' || bucketType == 'Materials') ? 'col-xs-3' : 'col-xs-4') + (isGridComplete ? ' complete' : ''), visible: isVisible">
-			<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
-				<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, fastclick: function(){ return false }">
-			</a>
-			<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>
-		</span>
+					<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
+						<img class="itemImage" data-bind="event: { error: $root.log }, attr: { src: item.icon, instanceId:item._id }, fastclick: function(){ return false }">
+					</a>
+					<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>
+				</span>
             </div>
         </div>
         <div style="padding-left: 4px;" class="bucket-item col-xs-3" data-bind="visible: character.id != 'Vault', with: character.itemEquipped(bucketType)">
