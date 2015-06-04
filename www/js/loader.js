@@ -11,7 +11,7 @@ tgd.defaults = {
     device_locale: "en",
     loaderContent: "",
     wwwPath: "", //this path will not have a trailing slash from ContentSync
-    itemDefsPath: "", //this path will not have a trailing slash from ContentSync
+    itemDefsPath: "data/", //this path will not have a trailing slash from ContentSync
     iconsPath: ""
 };
 //TODO: This needs to be broken down into ios/android/wp/chrome sub-URLs
@@ -224,7 +224,7 @@ var loader = new(function() {
                     }
                     self.assets.loaded_js = self.assets.js.slice();
                     self.addCss(wwwPath);
-                    self.insertJsFile(itemDefsPath,"data/itemDefs.js");
+                    self.insertJsFile(itemDefsPath, "itemDefs.js");
                     self.addJs(wwwPath);
                     self.addTemplates(wwwPath);
                 },
