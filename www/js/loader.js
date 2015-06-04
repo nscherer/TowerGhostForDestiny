@@ -4,17 +4,7 @@ window.isMobile = (/ios|iphone|ipod|ipad|android|iemobile/i.test(ua));
 tgd.supportLanguages = ["en", "es", "it", "de", "ja", "pt", "fr"];
 
 tgd.native_loader = true;
-tgd.defaults = {
-    www_local: tgd.version,
-    itemDefs_local: tgd.version,
-    icons_local: tgd.version,
-    device_locale: "en",
-    loaderContent: "",
-    wwwPath: "", //this path will not have a trailing slash from ContentSync
-    itemDefsPath: "data/", //this path will not have a trailing slash from ContentSync
-    iconsPath: "",
-	appPath: cordova.file.applicationDirectory
-};
+
 //TODO: This needs to be broken down into ios/android/wp/chrome sub-URLs
 var contentPath = "/content/";
 
@@ -64,7 +54,23 @@ var loader = new(function() {
 
     this.loadingDictionary = false;
     this.loadingLocal = false;
+	
+	this.initDefaults = function(){
+		tgd.defaults = {
+		    www_local: tgd.version,
+		    itemDefs_local: tgd.version,
+		    icons_local: tgd.version,
+		    device_locale: "en",
+		    loaderContent: "",
+		    wwwPath: "", //this path will not have a trailing slash from ContentSync
+		    itemDefsPath: "data/", //this path will not have a trailing slash from ContentSync
+		    iconsPath: "",
+			appPath: cordova.file.applicationDirectory
+		};
+	}
+	
     this.init = function() {
+		self.initDefaults();
         console.log("loader init v2");
 		if ( cordova.file.applicationDirectory != tgd.components.appPath() ){
 			console.log("upgraded app detected");			
