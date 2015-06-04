@@ -10,8 +10,8 @@ tgd.defaults = {
     icons_local: tgd.version,
     device_locale: "en",
     loaderContent: "",
-    wwwPath: "",
-    itemDefsPath: "data",
+    wwwPath: "", //this path will not have a trailing slash from ContentSync
+    itemDefsPath: "data", //this path will not have a trailing slash from ContentSync
     iconsPath: ""
 };
 //TODO: This needs to be broken down into ios/android/wp/chrome sub-URLs
@@ -63,15 +63,12 @@ var loader = new(function() {
     this.loadingDictionary = false;
     this.loadingLocal = false;
     this.init = function() {
-        console.log("loader init");
+        console.log("loader init v2");
         /* new concept: if there is a new loader use that and abort this from executing early */
         if (tgd.native_loader == true && !_.isEmpty(tgd.components.loaderContent())) {
             tgd.native_loader = false;
             delete window.loader;
             var scriptTag = $('<script type="text/javascript"></script>').html(tgd.components.loaderContent()).appendTo("head");
-            setTimeout(function() {
-                loader.init(), 1000
-            });
             return;
         }
         /* asking to load assets immediately whether built in or update assets*/
@@ -93,7 +90,7 @@ var loader = new(function() {
             iconsSync.on('complete', function(data) {
                 console.log('complete');
                 tgd.versions.local.icons(tgd.versions.remote.icons);
-                tgd.components.iconsPath(data.localPath);
+                tgd.components.iconsPath(data.localPath + "/");
                 callback();
             });
         } else {
@@ -113,7 +110,7 @@ var loader = new(function() {
             wwwSync.on('complete', function(data) {
                 console.log('updated www to ' + tgd.versions.remote.www);
                 tgd.versions.local.www(tgd.versions.remote.www);
-                tgd.components.wwwPath(data.localPath);
+                tgd.components.wwwPath(data.localPath + "/");
                 callback(true);
             });
         } else {
@@ -159,7 +156,7 @@ var loader = new(function() {
             itemDefsSync.on('complete', function(data) {
                 console.log(locale + ' updated itemDefs to ' + tgd.versions.remote.itemDefs);
                 tgd.versions.local.itemDefs(tgd.versions.remote.itemDefs);
-                tgd.components.itemDefsPath(data.localPath);
+                tgd.components.itemDefsPath(data.localPath + "/");
                 tgd.components.device_locale(locale);
                 if (callback) callback();
             });
@@ -228,9 +225,10 @@ var loader = new(function() {
                     self.addJs(wwwPath);
                     self.addTemplates(wwwPath);
                 },
-                error: function() {
+                error: function(a, b) {
                     console.log("error loading assets");
-                    console.log(arguments);
+                    console.log(a);
+                    console.log(b);
                 }
             });
         } catch (e) {
@@ -265,7 +263,7 @@ var loader = new(function() {
 
     this.addJs = function(basePath) {
         $.each(self.assets.js, function(index, file) {
-            self.insertJsFile(basePath + file);
+            self.insertJsFile(basePath, file);
         });
     }
 
@@ -278,16 +276,17 @@ var loader = new(function() {
         });
     }
 
-    this.insertJsFile = function(filename) {
+    this.insertJsFile = function(path, filename) {
         console.log("adding js file " + filename);
         var fileref = document.createElement('script');
         fileref.setAttribute("type", "text/javascript");
-        fileref.setAttribute("src", filename);
+        fileref.setAttribute("src", path + filename);
         fileref.onload = function() {
             console.log("file loaded " + filename);
             var index = self.assets.loaded_js.indexOf(filename);
             if (index > -1) {
                 self.assets.loaded_js.splice(index, 1);
+                console.log("removing from loaded files " + filename);
                 self.loadTGD();
             }
         };

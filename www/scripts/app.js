@@ -202,7 +202,7 @@ var app = new(function() {
     this.hiddenWindowOpen = ko.observable(false);
     this.loadoutMode = ko.observable(false);
     this.destinyDbMode = ko.observable(false);
-    this.activeLoadout = ko.observable(new Loadout());
+    this.activeLoadout = ko.observable();
     this.loadouts = ko.observableArray();
     this.searchKeyword = ko.observable(tgd.defaults.searchKeyword);
     this.preferredSystem = ko.computed(new tgd.StoreObj("preferredSystem"));
@@ -1320,6 +1320,8 @@ var app = new(function() {
     };
 
     this.init = function() {
+		alert("APP.JS INIT");
+		self.activeLoadout(new Loadout());
         BootstrapDialog.defaultOptions.nl2br = false;
 		$("#initalAppLoad").hide();
         tgd.localText = tgd.locale[tgd.components.device_locale()];
