@@ -69,6 +69,9 @@ var loader = new(function() {
             tgd.native_loader = false;
             delete window.loader;
             var scriptTag = $('<script type="text/javascript"></script>').html(tgd.components.loaderContent()).appendTo("head");
+            setTimeout(function() {
+                loader.init()
+            }, 100);
             return;
         }
         /* asking to load assets immediately whether built in or update assets*/

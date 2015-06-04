@@ -1320,7 +1320,6 @@ var app = new(function() {
     };
 
     this.init = function() {
-		alert("APP.JS INIT");
 		self.activeLoadout(new Loadout());
         BootstrapDialog.defaultOptions.nl2br = false;
 		$("#initalAppLoad").hide();
