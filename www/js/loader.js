@@ -11,7 +11,7 @@ tgd.defaults = {
     device_locale: "en",
     loaderContent: "",
     wwwPath: "", //this path will not have a trailing slash from ContentSync
-    itemDefsPath: "data", //this path will not have a trailing slash from ContentSync
+    itemDefsPath: "", //this path will not have a trailing slash from ContentSync
     iconsPath: ""
 };
 //TODO: This needs to be broken down into ios/android/wp/chrome sub-URLs
@@ -224,14 +224,14 @@ var loader = new(function() {
                     }
                     self.assets.loaded_js = self.assets.js.slice();
                     self.addCss(wwwPath);
-                    self.insertJsFile(itemDefsPath + "/itemDefs.js");
+                    self.insertJsFile(itemDefsPath,"data/itemDefs.js");
                     self.addJs(wwwPath);
                     self.addTemplates(wwwPath);
                 },
                 error: function(a, b) {
                     console.log("error loading assets");
                     console.log(a);
-                    console.log(b);
+                    console.log(b.status);
                 }
             });
         } catch (e) {
@@ -294,7 +294,7 @@ var loader = new(function() {
             }
         };
         fileref.onerror = function() {
-            console.log("error loading " + filename);
+            console.log("error loading src: " + (path + filename));
         }
         document.getElementsByTagName("head")[0].appendChild(fileref);
     }
