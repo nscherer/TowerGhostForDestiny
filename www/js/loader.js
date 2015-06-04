@@ -31,23 +31,6 @@ tgd.StoreObj = function(key, compare, writeCallback) {
     }
 }
 
-tgd.versions = {
-    local: {
-        www: ko.computed(new tgd.StoreObj("www_local")),
-        itemDefs: ko.computed(new tgd.StoreObj("itemDefs_local")),
-        icons: ko.computed(new tgd.StoreObj("icons_local"))
-    },
-    remote: {}
-}
-tgd.components = {
-	appPath: ko.computed(new tgd.StoreObj("appPath")),
-    device_locale: ko.computed(new tgd.StoreObj("device_locale")),
-    wwwPath: ko.computed(new tgd.StoreObj("wwwPath")),
-    itemDefsPath: ko.computed(new tgd.StoreObj("itemDefsPath")),
-    iconsPath: ko.computed(new tgd.StoreObj("iconsPath")),
-    loaderContent: ko.computed(new tgd.StoreObj("loaderContent")),
-}
-
 var loader = new(function() {
     var self = this;
     var api_url = "https://towerghostfordestiny.com";
@@ -56,6 +39,13 @@ var loader = new(function() {
     this.loadingLocal = false;
 	
 	this.initDefaults = function(){
+		if (typeof cordova == "undefined"){
+			cordova = {
+				file: {
+					applicationDirectory: ""
+				}
+			}
+		}
 		tgd.defaults = {
 		    www_local: tgd.version,
 		    itemDefs_local: tgd.version,
@@ -66,7 +56,23 @@ var loader = new(function() {
 		    itemDefsPath: "data/", //this path will not have a trailing slash from ContentSync
 		    iconsPath: "",
 			appPath: cordova.file.applicationDirectory
-		};
+		};	
+		tgd.versions = {
+		    local: {
+		        www: ko.computed(new tgd.StoreObj("www_local")),
+		        itemDefs: ko.computed(new tgd.StoreObj("itemDefs_local")),
+		        icons: ko.computed(new tgd.StoreObj("icons_local"))
+		    },
+		    remote: {}
+		}
+		tgd.components = {
+			appPath: ko.computed(new tgd.StoreObj("appPath")),
+		    device_locale: ko.computed(new tgd.StoreObj("device_locale")),
+		    wwwPath: ko.computed(new tgd.StoreObj("wwwPath")),
+		    itemDefsPath: ko.computed(new tgd.StoreObj("itemDefsPath")),
+		    iconsPath: ko.computed(new tgd.StoreObj("iconsPath")),
+		    loaderContent: ko.computed(new tgd.StoreObj("loaderContent")),
+		}	
 	}
 	
     this.init = function() {
