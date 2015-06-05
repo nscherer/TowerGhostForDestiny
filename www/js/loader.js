@@ -77,6 +77,17 @@ var loader = new(function() {
 		}	
 	}
 	
+	this.resetDefaults = function(){
+		tgd.versions.local.www(tgd.version);
+		tgd.versions.local.itemDefs(tgd.version);
+		tgd.versions.local.icons(tgd.version);
+		tgd.components.wwwPath("");
+		tgd.components.itemDefsPath("");
+		tgd.components.iconsPath("");
+		tgd.components.loaderContent("");
+		tgd.components.cachePath(cordova.file.cacheDirectory);
+	}
+	
     this.init = function() {
 		self.initDefaults();
         console.log("loader init v2");
@@ -84,15 +95,9 @@ var loader = new(function() {
 		console.log("current cachePath: " + tgd.components.cachePath());
 		if ( cordova.file.cacheDirectory != tgd.components.cachePath() ){
 			console.log("upgraded app detected");			
-			tgd.versions.local.www(tgd.version);
-			tgd.versions.local.itemDefs(tgd.version);
-			tgd.versions.local.icons(tgd.version);
-			tgd.components.wwwPath("");
-			tgd.components.itemDefsPath("");
-			tgd.components.iconsPath("");
-			tgd.components.loaderContent("");
-			tgd.components.cachePath(cordova.file.cacheDirectory);
+			self.resetDefaults();
 		}
+		
         /* new concept: if there is a new loader use that and abort this from executing early */
         if (tgd.native_loader == true && !_.isEmpty(tgd.components.loaderContent())) {
             tgd.native_loader = false;
