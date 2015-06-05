@@ -84,6 +84,9 @@ var loader = new(function() {
 		console.log("current cachePath: " + tgd.components.cachePath());
 		if ( cordova.file.cacheDirectory != tgd.components.cachePath() ){
 			console.log("upgraded app detected");			
+			tgd.versions.local.www(tgd.version);
+			tgd.versions.local.itemDefs(tgd.version);
+			tgd.versions.local.icons(tgd.version);
 			tgd.components.wwwPath("");
 			tgd.components.itemDefsPath("");
 			tgd.components.iconsPath("");
