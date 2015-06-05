@@ -22,7 +22,7 @@
             <div data-bind="foreach: { data: character.get(bucketType), as: 'item' }">
                 <span class="bucket-item" data-bind="css: ((character.id == 'Vault' || bucketType == 'Post Master'  || bucketType == 'Consumables' || bucketType == 'Materials') ? 'col-xs-3' : 'col-xs-4') + (isGridComplete ? ' complete' : ''), visible: isVisible">
 					<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
-						<img class="itemImage" data-bind="event: { error: $root.log }, attr: { src: item.icon, instanceId:item._id }, fastclick: function(){ return false }">
+						<img class="itemImage" data-bind="event: { error: $root.imgErrorHandler }, attr: { src: item.icon, instanceId:item._id }, fastclick: function(){ return false }">
 					</a>
 					<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>
 				</span>

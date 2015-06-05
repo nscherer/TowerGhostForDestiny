@@ -6,6 +6,7 @@ var Item = function(model, profile) {
     this.character = profile;
     this.href = "https://destinydb.com/items/" + self.id;
     this.isEquipped = ko.observable(self.isEquipped);
+	this.icon = ko.observable(self.icon);
     this.primaryStat = self.primaryStat || "";
     this.isVisible = ko.computed(this._isVisible, this);
     this.isEquippable = function(avatarId) {

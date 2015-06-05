@@ -1320,13 +1320,17 @@ var app = new(function() {
     };
 
 	var errorHistory = {};
-	this.imageError = function(item, event){
-		
+	this.imgErrorHandler = function(item, event){
+		/* Try alternative local cache directory */
 		if (!(item.id in errorHistory) ){
-			errorHistory[item.id] = "";
-			console.log("img error");
+			errorHistory[item.id] = 1;
+			item._icon = item.icon().replace("data","");
+			item.icon(tgd.components.iconsPath() + item.icon());
 		}
-		event.target.src = tgd.components.iconsPath() + item.icon;
+		/* Icon not available locally load it remotely */
+		else if (errorHistory[item.id] == 1){
+			item.icon( self.bungie.getUrl() + item._icon );
+		}
 	}
 	
     this.init = function() {
