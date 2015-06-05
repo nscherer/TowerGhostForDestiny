@@ -78,13 +78,15 @@ var loader = new(function() {
     this.init = function() {
 		self.initDefaults();
         console.log("loader init v2");
+		console.log("current cache path: " + cordova.file.cacheDirectory);
+		console.log("current cachePath: " + tgd.components.cachePath());
 		if ( cordova.file.cacheDirectory != tgd.components.cachePath() ){
 			console.log("upgraded app detected");			
 			tgd.components.wwwPath("");
 			tgd.components.itemDefsPath("");
 			tgd.components.iconsPath("");
 			tgd.components.loaderContent("");
-			tgd.components.appPath(cordova.file.cacheDirectory);
+			tgd.components.cachePath(cordova.file.cacheDirectory);
 		}
         /* new concept: if there is a new loader use that and abort this from executing early */
         if (tgd.native_loader == true && !_.isEmpty(tgd.components.loaderContent())) {
