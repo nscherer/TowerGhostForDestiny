@@ -55,7 +55,7 @@ var loader = new(function() {
 		    wwwPath: "", //this path will not have a trailing slash from ContentSync
 		    itemDefsPath: "data/", //this path will not have a trailing slash from ContentSync
 		    iconsPath: "",
-			appPath: cordova.file.applicationDirectory
+			cachePath: cordova.file.cacheDirectory
 		};	
 		tgd.versions = {
 		    local: {
@@ -66,7 +66,7 @@ var loader = new(function() {
 		    remote: {}
 		}
 		tgd.components = {
-			appPath: ko.computed(new tgd.StoreObj("appPath")),
+			cachePath: ko.computed(new tgd.StoreObj("cachePath")),
 		    device_locale: ko.computed(new tgd.StoreObj("device_locale")),
 		    wwwPath: ko.computed(new tgd.StoreObj("wwwPath")),
 		    itemDefsPath: ko.computed(new tgd.StoreObj("itemDefsPath")),
@@ -78,13 +78,13 @@ var loader = new(function() {
     this.init = function() {
 		self.initDefaults();
         console.log("loader init v2");
-		if ( cordova.file.applicationDirectory != tgd.components.appPath() ){
+		if ( cordova.file.cacheDirectory != tgd.components.cachePath() ){
 			console.log("upgraded app detected");			
 			tgd.components.wwwPath("");
 			tgd.components.itemDefsPath("");
 			tgd.components.iconsPath("");
 			tgd.components.loaderContent("");
-			tgd.components.appPath(cordova.file.applicationDirectory);
+			tgd.components.appPath(cordova.file.cacheDirectory);
 		}
         /* new concept: if there is a new loader use that and abort this from executing early */
         if (tgd.native_loader == true && !_.isEmpty(tgd.components.loaderContent())) {
