@@ -8,12 +8,14 @@ tgd.native_loader = true;
 //TODO: This needs to be broken down into ios/android/wp/chrome sub-URLs
 var contentPath = "/content/";
 
-tgd.getStoredValue = function(key) {
+tgd.getStoredValue = function(key, obj) {
     var saved = "";
     if (window.localStorage && window.localStorage.getItem)
         saved = window.localStorage.getItem(key);
     if (_.isEmpty(saved)) {
-        return tgd.defaults[key];
+		var newValue = tgd.defaults[key];
+		window.localStorage.setItem(key, newValue);
+        return newValue;
     } else {
         return saved
     }
@@ -42,7 +44,7 @@ var loader = new(function() {
 		if (typeof cordova == "undefined"){
 			cordova = {
 				file: {
-					applicationDirectory: ""
+					cacheDirectory: ""
 				}
 			}
 		}
