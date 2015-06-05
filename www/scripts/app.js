@@ -1319,8 +1319,13 @@ var app = new(function() {
         });
     };
 
-	this.log = function(item, event){
-		console.log("img error");
+	var errorHistory = {};
+	this.imageError = function(item, event){
+		
+		if (!(item.id in errorHistory) ){
+			errorHistory[item.id] = "";
+			console.log("img error");
+		}
 		event.target.src = tgd.components.iconsPath() + item.icon;
 	}
 	
