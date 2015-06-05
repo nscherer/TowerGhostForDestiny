@@ -2,129 +2,21 @@
         <div class="content" data-bind="with: activeLoadout">
             <div id="loadout-options">
                 <input id="loadout-name" type="search" data-bind="value: name" placeholder="Loadout Name...">
-                <span id="loadout-save" data-bind="fastclick: save">Save</span>
-                <span id="loadout-save" data-bind="fastclick: remove">Delete</span>
-                <span id="loadout-save" data-bind="fastclick: $root.cancelLoadout">Close</span>
+                <span id="loadout-save" data-bind="fastclick: save, text: tgd.localText.loadouts_save">Save</span>
+                <span id="loadout-save" data-bind="fastclick: remove, text: tgd.localText.loadouts_delete">Delete</span>
+                <span id="loadout-save" data-bind="fastclick: $root.cancelLoadout, text: tgd.localText.loadouts_close">Close</span>
                 <!-- ko foreach: { data: $root.orderedCharacters, as: 'character' } -->
                 <div class="move-button move-loadout" data-bind="attr: { title: uniqueName }, click: function(){ $parent.transfer(character.id) }, style: { backgroundImage: icon }">
                     <div class="lower-left" data-bind="text: classLetter"></div>
                 </div>
                 <!--/ko  -->
-                <p id="loadout-error" class="label label-danger" data-bind="visible: items().length == 0">No items in loadout, click items to add, <span data-bind="text: isMobile ? 'hold':'check'"></span> to equip.</p>
+                <p id="loadout-error" class="label label-danger" data-bind="visible: items().length == 0">
+                    <span data-bind="text: tgd.localText.loadouts_instructions">No items in loadout, click items to add, </span>
+                    <span data-bind="text: isMobile ? tgd.localText.loadouts_mobile:tgd.localText.loadouts_desktop"></span>
+                    <span data-bind="text: tgd.localText.loadouts_instructions_contd">to equip.</span>
+                </p>
             </div>
-            <span id="loadout-contents" data-bind="foreach: { data: items, as: 'item' }, moveItem: true">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-				<span class="item" data-bind="css: isMobile && doEquip() ? 'doEquip' : ''">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-					<input type="checkbox" value="true" data-bind="checked: doEquip, fastclick: markAsEquip, visible: !isMobile" title="Enable to mark as the equip item">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-					<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-						<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, fastclick: function(){ return false }">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-					</a>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-					<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-				</span>
+            <span id="loadout-contents" data-bind="foreach: { data: items, as: 'item' }, moveItem: true">				<span class="item" data-bind="css: isMobile && doEquip() ? 'doEquip' : ''">					<input type="checkbox" value="true" data-bind="checked: doEquip, fastclick: markAsEquip, visible: !isMobile" title="Enable to mark as the equip item">					<a class="itemLink" data-bind="attr:{href:item.href, instanceId:item._id}">						<img class="itemImage" data-bind="attr: { src: item.icon, instanceId:item._id }, fastclick: function(){ return false }">					</a>					<div class="attkIcon"><div data-bind="text: primaryStat, css: damageTypeName"></div></div>				</span>
             </span>
         </div>
     </div>
