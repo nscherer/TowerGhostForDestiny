@@ -1,12 +1,26 @@
 window.ua = navigator.userAgent;
-window.isMobile = (/ios|iphone|ipod|ipad|android|iemobile/i.test(ua));
-
+window.ua = navigator.userAgent;
+window.isChrome = (typeof chrome !== "undefined");
+window.isIOS = (/ios|iphone|ipod|ipad/i.test(ua));
+window.isAndroid = (/android/i.test(ua));
+window.isWindowsPhone = (/iemobile/i.test(ua));
+window.isMobile = (isIOS || isAndroid || isWindowsPhone);
+window.isKindle = /Kindle/i.test(ua) || /Silk/i.test(ua) || /KFTT/i.test(ua) || /KFOT/i.test(ua) || /KFJWA/i.test(ua) || /KFJWI/i.test(ua) || /KFSOWI/i.test(ua) || /KFTHWA/i.test(ua) || /KFTHWI/i.test(ua) || /KFAPWA/i.test(ua) || /KFAPWI/i.test(ua);
+window.supportsCloudSaves = window.isChrome || window.isMobile;
 tgd.supportLanguages = ["en", "es", "it", "de", "ja", "pt", "fr"];
-
 tgd.native_loader = true;
-
+window.platformType = "chrome";
+if ( isIOS ){
+	window.platformType = "ios";
+}
+else if (isAndroid){ 
+	window.platformType = "android";
+}
+else if (isWindowsPhone){ 
+	window.platformType = "windows-phone";
+}
 //TODO: This needs to be broken down into ios/android/wp/chrome sub-URLs
-var contentPath = "/content/";
+var contentPath = "/content/" + window.platformType;
 
 tgd.getStoredValue = function(key, obj) {
     var saved = "";
@@ -136,8 +150,9 @@ var loader = new(function() {
     }
 
     this.syncWWW = function(callback) {
-        if (tgd.versions.local.www() !== tgd.versions.remote.www) {
-            console.log(tgd.versions.local.www() + " is local version of www, new version available: " + tgd.versions.remote.www);
+		var remoteVersion = tgd.versions.remote.www[platformType];
+        if (tgd.versions.local.www() !== remoteVersion) {
+            console.log(tgd.versions.local.www() + " is local version of www, new version available: " + remoteVersion);
             var wwwSync = ContentSync.sync({
                 src: api_url + contentPath + 'www.zip',
                 id: 'www',
@@ -145,8 +160,8 @@ var loader = new(function() {
                 type: "replace"
             });
             wwwSync.on('complete', function(data) {
-                console.log('updated www to ' + tgd.versions.remote.www);
-                tgd.versions.local.www(tgd.versions.remote.www);
+                console.log('updated www to ' + remoteVersion);
+                tgd.versions.local.www(remoteVersion);
                 tgd.components.wwwPath(data.localPath + "/");
                 callback(true);
             });

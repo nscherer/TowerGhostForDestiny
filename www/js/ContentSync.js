@@ -1,5 +1,6 @@
 SyncTask = new(function() {
-
+	var self = this;
+	
     this.create = function(options) {
         var syncTask = $({});
         this.options = options;
@@ -7,7 +8,13 @@ SyncTask = new(function() {
         /* 1 sec to load the www.zip */
         setTimeout(function() {
             var event = jQuery.Event("complete");
-            event.localPath = ".";
+			console.log(self.options);
+			if (self.options.id.indexOf("itemDefs") > -1){
+				event.localPath = "data";
+			}
+            else {
+				event.localPath = ".";
+			}
             syncTask.trigger(event);
         }, 1000);
 
