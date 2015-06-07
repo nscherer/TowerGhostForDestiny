@@ -9,26 +9,22 @@ window.isKindle = /Kindle/i.test(ua) || /Silk/i.test(ua) || /KFTT/i.test(ua) || 
 window.supportsCloudSaves = window.isChrome || window.isMobile;
 tgd.supportLanguages = ["en", "es", "it", "de", "ja", "pt", "fr"];
 tgd.native_loader = true;
-window.platformType = "chrome";
-if ( isIOS ){
-	window.platformType = "ios";
+tgd.platformType = "chrome";
+if (isIOS) {
+    tgd.platformType = "ios";
+} else if (isAndroid) {
+    tgd.platformType = "android";
+} else if (isWindowsPhone) {
+    tgd.platformType = "windows-phone";
 }
-else if (isAndroid){ 
-	window.platformType = "android";
-}
-else if (isWindowsPhone){ 
-	window.platformType = "windows-phone";
-}
-//TODO: This needs to be broken down into ios/android/wp/chrome sub-URLs
-var contentPath = "/content/" + window.platformType;
 
 tgd.getStoredValue = function(key, obj) {
     var saved = "";
     if (window.localStorage && window.localStorage.getItem)
         saved = window.localStorage.getItem(key);
     if (_.isEmpty(saved)) {
-		var newValue = tgd.defaults[key];
-		window.localStorage.setItem(key, newValue);
+        var newValue = tgd.defaults[key];
+        window.localStorage.setItem(key, newValue);
         return newValue;
     } else {
         return saved
@@ -53,65 +49,65 @@ var loader = new(function() {
 
     this.loadingDictionary = false;
     this.loadingLocal = false;
-	
-	this.initDefaults = function(){
-		if (typeof cordova == "undefined"){
-			cordova = {
-				file: {
-					cacheDirectory: ""
-				}
-			}
-		}
-		tgd.defaults = {
-		    www_local: tgd.version,
-		    itemDefs_local: tgd.version,
-		    icons_local: tgd.version,
-		    device_locale: "en",
-		    loaderContent: "",
-		    wwwPath: "", //this path will not have a trailing slash from ContentSync
-		    itemDefsPath: "data/", //this path will not have a trailing slash from ContentSync
-		    iconsPath: "",
-			cachePath: cordova.file.cacheDirectory
-		};	
-		tgd.versions = {
-		    local: {
-		        www: ko.computed(new tgd.StoreObj("www_local")),
-		        itemDefs: ko.computed(new tgd.StoreObj("itemDefs_local")),
-		        icons: ko.computed(new tgd.StoreObj("icons_local"))
-		    },
-		    remote: {}
-		}
-		tgd.components = {
-			cachePath: ko.computed(new tgd.StoreObj("cachePath")),
-		    device_locale: ko.computed(new tgd.StoreObj("device_locale")),
-		    wwwPath: ko.computed(new tgd.StoreObj("wwwPath")),
-		    itemDefsPath: ko.computed(new tgd.StoreObj("itemDefsPath")),
-		    iconsPath: ko.computed(new tgd.StoreObj("iconsPath")),
-		    loaderContent: ko.computed(new tgd.StoreObj("loaderContent")),
-		}	
-	}
-	
-	this.resetDefaults = function(){
-		tgd.versions.local.www(tgd.version);
-		tgd.versions.local.itemDefs(tgd.version);
-		tgd.versions.local.icons(tgd.version);
-		tgd.components.wwwPath("");
-		tgd.components.itemDefsPath("");
-		tgd.components.iconsPath("");
-		tgd.components.loaderContent("");
-		tgd.components.cachePath(cordova.file.cacheDirectory);
-	}
-	
+
+    this.initDefaults = function() {
+        if (typeof cordova == "undefined") {
+            cordova = {
+                file: {
+                    cacheDirectory: ""
+                }
+            }
+        }
+        tgd.defaults = {
+            www_local: tgd.version,
+            itemDefs_local: tgd.version,
+            icons_local: tgd.version,
+            device_locale: "en",
+            loaderContent: "",
+            wwwPath: "", //this path will not have a trailing slash from ContentSync
+            itemDefsPath: "data/", //this path will not have a trailing slash from ContentSync
+            iconsPath: "",
+            cachePath: cordova.file.cacheDirectory
+        };
+        tgd.versions = {
+            local: {
+                www: ko.computed(new tgd.StoreObj("www_local")),
+                itemDefs: ko.computed(new tgd.StoreObj("itemDefs_local")),
+                icons: ko.computed(new tgd.StoreObj("icons_local"))
+            },
+            remote: {}
+        }
+        tgd.components = {
+            cachePath: ko.computed(new tgd.StoreObj("cachePath")),
+            device_locale: ko.computed(new tgd.StoreObj("device_locale")),
+            wwwPath: ko.computed(new tgd.StoreObj("wwwPath")),
+            itemDefsPath: ko.computed(new tgd.StoreObj("itemDefsPath")),
+            iconsPath: ko.computed(new tgd.StoreObj("iconsPath")),
+            loaderContent: ko.computed(new tgd.StoreObj("loaderContent")),
+        }
+    }
+
+    this.resetDefaults = function() {
+        tgd.versions.local.www(tgd.version);
+        tgd.versions.local.itemDefs(tgd.version);
+        tgd.versions.local.icons(tgd.version);
+        tgd.components.wwwPath("");
+        tgd.components.itemDefsPath("");
+        tgd.components.iconsPath("");
+        tgd.components.loaderContent("");
+        tgd.components.cachePath(cordova.file.cacheDirectory);
+    }
+
     this.init = function() {
-		self.initDefaults();
+        self.initDefaults();
         console.log("loader init v2");
-		console.log("current cache path: " + cordova.file.cacheDirectory);
-		console.log("current cachePath: " + tgd.components.cachePath());
-		if ( cordova.file.cacheDirectory != tgd.components.cachePath() ){
-			console.log("upgraded app detected");			
-			self.resetDefaults();
-		}
-		
+        console.log("current cache path: " + cordova.file.cacheDirectory);
+        console.log("current cachePath: " + tgd.components.cachePath());
+        if (cordova.file.cacheDirectory != tgd.components.cachePath()) {
+            console.log("upgraded app detected");
+            self.resetDefaults();
+        }
+
         /* new concept: if there is a new loader use that and abort this from executing early */
         if (tgd.native_loader == true && !_.isEmpty(tgd.components.loaderContent())) {
             tgd.native_loader = false;
@@ -150,11 +146,11 @@ var loader = new(function() {
     }
 
     this.syncWWW = function(callback) {
-		var remoteVersion = tgd.versions.remote.www[platformType];
+        var remoteVersion = tgd.versions.remote.www[tgd.platformType];
         if (tgd.versions.local.www() !== remoteVersion) {
             console.log(tgd.versions.local.www() + " is local version of www, new version available: " + remoteVersion);
             var wwwSync = ContentSync.sync({
-                src: api_url + contentPath + 'www.zip',
+                src: api_url + "/content/" + tgd.platformType + '/www.zip',
                 id: 'www',
                 copyCordovaAssets: false,
                 type: "replace"

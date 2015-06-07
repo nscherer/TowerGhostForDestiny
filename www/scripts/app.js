@@ -1325,8 +1325,14 @@ var app = new(function() {
 		if (!(item.id in errorHistory) ){
 			errorHistory[item.id] = 1;
 			item._icon = item.icon().replace("data","");
-			item.icon(tgd.components.iconsPath() + item.icon());
-			console.log(item.description + " failed to load once trying the appCache: " + tgd.components.iconsPath());
+			if (tgd.components.iconsPath() == ""){
+				console.log("appCache empty, trying to load data directly from Bungie");
+				item.icon( self.bungie.getUrl() + item._icon );
+			}
+			else {							
+				item.icon(tgd.components.iconsPath() + item.icon());
+				console.log(item.description + " failed to load once trying the appCache: " + tgd.components.iconsPath());
+			}
 		}
 		/* Icon not available locally load it remotely */
 		else if (errorHistory[item.id] == 1){
